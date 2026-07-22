@@ -1,0 +1,18 @@
+plugins {
+    id 'privactivity.library-conventions'
+    id 'java-test-fixtures'
+}
+
+dependencies {
+    implementation project(':privactivity-domain')
+
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+
+    testFixturesImplementation project(':privactivity-domain')
+}

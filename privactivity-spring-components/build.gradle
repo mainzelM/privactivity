@@ -1,0 +1,26 @@
+plugins {
+    id 'privactivity.java-conventions'
+}
+
+dependencies {
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+    implementation project(':geojson-domain')
+
+    implementation project(':json-repositories')
+    implementation project(':microstream-repositories')
+    implementation project(':activities-json-adapter')
+    implementation project(':fit-decoder-adapter')
+    implementation project(':geotools-town-finder-adapter')
+    implementation project(':gpx-export-adapter')
+    implementation project(':gpx-importer-adapter')
+    implementation project(':tcx-importer-adapter')
+
+
+    implementation 'org.springframework:spring-context'
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.assertj:assertj-core'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}

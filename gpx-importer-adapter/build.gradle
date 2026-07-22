@@ -1,0 +1,17 @@
+plugins {
+    id 'privactivity.library-conventions'
+}
+
+
+dependencies {
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+
+    implementation 'io.jenetics:jpx'
+
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.assertj:assertj-core'
+}

@@ -1,0 +1,102 @@
+.max-power-spinner-container {
+  margin-top: 10px;
+}
+
+.spinner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  gap: 18px;
+}
+
+.spinner-label {
+  color: var(--mat-sys-primary);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.max-power-container {
+  margin: 24px auto;
+  max-width: 900px;
+}
+
+.max-power-card {
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--mat-sys-shadow);
+}
+
+.max-power-accordion {
+  width: 100%;
+  background-color: var(--mat-sys-surface-variant);
+}
+
+.panel-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  font-size: 1.1rem;
+  padding: 8px 0;
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface);
+  border-radius: 8px;
+}
+
+.panel-duration, .panel-watts, .panel-activity, .panel-timestamp {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-watts mat-icon,
+.panel-duration mat-icon,
+.panel-activity mat-icon,
+.panel-timestamp mat-icon {
+  color: var(--mat-sys-secondary);
+}
+
+.panel-watts {
+  color: var(--mat-sys-primary);
+  font-weight: 600;
+}
+
+.panel-activity {
+  color: var(--mat-sys-secondary);
+}
+
+.panel-timestamp {
+  color: var(--mat-sys-primary);
+}
+
+.activity-link {
+  color: var(--mat-sys-primary);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.panel-details {
+  padding: 12px 0 0 0;
+  background: var(--mat-sys-surface-variant);
+  border-radius: 8px;
+  color: var(--mat-sys-on-surface);
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 1rem;
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface);
+  border-radius: 6px;
+}
+
+.wp-icon {
+  color: var(--mat-sys-secondary);
+}

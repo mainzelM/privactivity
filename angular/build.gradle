@@ -1,0 +1,103 @@
+plugins {
+    id 'base'
+    id 'com.github.node-gradle.node' version '7.1.0'
+}
+
+configurations {
+    webApp
+}
+
+node {
+    download = true
+    version = '24.16.0'
+    npmInstallCommand = 'install'
+}
+
+clean {
+    delete '.angular'
+    delete 'dist'
+}
+
+
+tasks.register('buildWebapp', NpmTask) {
+    dependsOn npmInstall
+
+    args = ['run', 'build']
+
+    inputs.property('nodeVersion', node.version)
+    inputs.files(fileTree(projectDir).matching {
+        exclude '.angular'
+        exclude '.gradle'
+        exclude 'node_modules'
+        exclude 'build'
+        exclude 'build.gradle'
+        exclude 'dist'
+    }).withPathSensitivity(PathSensitivity.RELATIVE)
+
+    outputs.dir('dist')
+    outputs.cacheIf { true }
+}
+
+tasks.register('npm', NpmTask) {
+    if ((project.findProperty('npmInstallFirst') ?: 'false').toString().toBoolean()) {
+        dependsOn npmInstall
+    }
+
+    args.set(
+            providers.gradleProperty('npmArgs')
+                    .map { rawArgs ->
+                        def trimmed = rawArgs.toString().trim()
+                        trimmed.isEmpty() ? [] : (trimmed.split(/\s+/) as List)
+                    }
+                    .orElse([])
+    )
+
+    doFirst {
+        if (args.get().isEmpty()) {
+            throw new GradleException('Missing -PnpmArgs. Example: -PnpmArgs="run start"')
+        }
+    }
+}
+
+tasks.register('ng', NpmTask) {
+    if ((project.findProperty('npmInstallFirst') ?: 'false').toString().toBoolean()) {
+        dependsOn npmInstall
+    }
+
+    args.set(
+            providers.gradleProperty('ngArgs')
+                    .map { rawArgs ->
+                        def trimmed = rawArgs.toString().trim()
+                        trimmed.isEmpty() ? [] : (['exec', '--', 'ng'] + (trimmed.split(/\s+/) as List))
+                    }
+                    .orElse([])
+    )
+
+    doFirst {
+        if (args.get().isEmpty()) {
+            throw new GradleException('Missing -PngArgs. Example: -PngArgs="build --configuration development"')
+        }
+    }
+}
+
+tasks.register('ngServe', NpmTask) {
+    if ((project.findProperty('npmInstallFirst') ?: 'false').toString().toBoolean()) {
+        dependsOn npmInstall
+    }
+
+    args = ['exec', '--', 'ng', 'serve']
+}
+
+tasks.register('test', NpmTask) {
+    if ((project.findProperty('npmInstallFirst') ?: 'false').toString().toBoolean()) {
+        dependsOn npmInstall
+    }
+
+    args = ['run', 'test']
+}
+
+artifacts {
+    webApp(file('dist')) {
+        builtBy 'buildWebapp'
+    }
+}

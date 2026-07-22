@@ -1,0 +1,27 @@
+rootProject.name = 'privactivity-store'
+
+include('privactivity-domain')
+include('privactivity-store-domain')
+include('geojson-domain')
+include('privactivity-platform')
+
+include('privactivity-service')
+
+include('json-repositories')
+include('microstream-repositories')
+include('fit-decoder-adapter')
+include('activities-json-adapter')
+include('gpx-importer-adapter')
+include('tcx-importer-adapter')
+include('gpx-export-adapter')
+include('geotools-town-finder-adapter')
+
+include('privactivity-spring-components')
+
+include('privactivity-store-rest')
+
+include('angular')
+
+include('privactivity-jmh')
+
+include('privactivity-app')

@@ -1,0 +1,18 @@
+plugins {
+    id 'privactivity.java-conventions'
+}
+
+
+dependencies {
+    implementation project(':privactivity-store-domain')
+    implementation project(':privactivity-service')
+    implementation project(':microstream-repositories') // TODO: wrong, because ClimbResource directly uses ClimbStore
+    implementation project(':privactivity-domain')
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation(group: "io.netty", name: "netty-resolver-dns-native-macos", classifier: "osx-aarch_64")
+}
+

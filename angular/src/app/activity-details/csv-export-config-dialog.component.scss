@@ -1,0 +1,22 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}

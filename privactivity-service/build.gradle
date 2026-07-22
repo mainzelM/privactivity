@@ -1,0 +1,17 @@
+plugins {
+    id 'privactivity.java-conventions'
+}
+
+dependencies {
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+    implementation project(':geojson-domain')
+
+
+    implementation 'org.springframework:spring-context'
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.assertj:assertj-core'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}

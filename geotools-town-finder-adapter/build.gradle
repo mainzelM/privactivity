@@ -1,0 +1,29 @@
+plugins {
+    id 'privactivity.java-conventions'
+    id 'java-test-fixtures'
+}
+
+dependencies {
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+
+    implementation "org.locationtech.jts:jts-core"
+    implementation "org.geotools:gt-shapefile"
+    implementation "org.geotools:gt-main"
+    implementation "org.geotools:gt-epsg-hsql"
+
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.assertj:assertj-core'
+
+    testFixturesImplementation project(':fit-decoder-adapter')
+    testFixturesImplementation project(':privactivity-domain')
+    testFixturesImplementation project(':privactivity-store-domain')
+
+    testFixturesImplementation "org.locationtech.jts:jts-core"
+    testFixturesImplementation "org.geotools:gt-shapefile"
+    testFixturesImplementation "org.geotools:gt-main"
+    testFixturesImplementation "org.geotools:gt-epsg-hsql"
+}

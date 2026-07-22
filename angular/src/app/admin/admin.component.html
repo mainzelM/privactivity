@@ -1,0 +1,350 @@
+<div class="admin-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>settings</mat-icon>
+        Application Administration
+      </mat-card-title>
+    </mat-card-header>
+  </mat-card>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>Processing...</p>
+    </div>
+  }
+
+  @if (errors.length > 0) {
+    <mat-card class="error-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon color="warn">error</mat-icon>
+          Errors
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          @for (error of errors; track error) {
+            <mat-list-item>
+              <mat-icon matListItemIcon color="warn">error_outline</mat-icon>
+              <div matListItemTitle>{{ error }}</div>
+            </mat-list-item>
+          }
+        </mat-list>
+        <button mat-button color="primary" (click)="clearErrors()">
+          <mat-icon>clear</mat-icon>
+          Clear Errors
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card class="admin-tabs-card">
+    <mat-tab-group>
+      <!-- System Info Tab -->
+      <mat-tab label="System Information">
+        <div class="tab-content">
+          @if (systemInfo) {
+            <div>
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Application Info</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="custom-list">
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">info</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Application Name</div>
+                        <div class="item-subtitle">{{ systemInfo.applicationName }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">tag</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Version</div>
+                        <div class="item-subtitle">{{ systemInfo.version }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">schedule</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Build Time</div>
+                        <div class="item-subtitle">{{ systemInfo.buildTime }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">code</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Java Version</div>
+                        <div class="item-subtitle">{{ systemInfo.javaVersion }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">build</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Gradle Version</div>
+                        <div class="item-subtitle">{{ systemInfo.gradleVersion }}</div>
+                      </div>
+                    </div>
+                    @if (systemInfo.gitCommit && systemInfo.gitCommit !== 'unknown') {
+                      <div class="custom-list-item"
+                        >
+                        <mat-icon class="item-icon">commit</mat-icon>
+                        <div class="item-content">
+                          <div class="item-title">Git Commit</div>
+                          <div class="item-subtitle">{{ systemInfo.gitCommit }}</div>
+                        </div>
+                      </div>
+                    }
+                    @if (systemInfo.buildNumber && systemInfo.buildNumber !== 'unknown') {
+                      <div class="custom-list-item"
+                        >
+                        <mat-icon class="item-icon">numbers</mat-icon>
+                        <div class="item-content">
+                          <div class="item-title">Build Number</div>
+                          <div class="item-subtitle">{{ systemInfo.buildNumber }}</div>
+                        </div>
+                      </div>
+                    }
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">settings</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Active Profiles</div>
+                        <div class="item-subtitle">{{ systemInfo.activeProfiles.join(', ') }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Storage Statistics</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="custom-list">
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">folder</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">FIT Activities</div>
+                        <div class="item-subtitle">{{ systemInfo.storageStats.fitActivities }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">folder</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">GPX Activities</div>
+                        <div class="item-subtitle">{{ systemInfo.storageStats.gpxActivities }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">storage</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Total Activities</div>
+                        <div class="item-subtitle">{{ systemInfo.storageStats.totalActivities }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">save</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Storage Size</div>
+                        <div class="item-subtitle">{{ systemInfo.storageStats.storageSize }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+              <mat-card class="info-card">
+                <mat-card-header>
+                  <mat-card-title>Memory Usage</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="custom-list">
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">memory</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Used Memory</div>
+                        <div class="item-subtitle">{{ systemInfo.memoryUsage.used }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">memory</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Total Memory</div>
+                        <div class="item-subtitle">{{ systemInfo.memoryUsage.total }}</div>
+                      </div>
+                    </div>
+                    <div class="custom-list-item">
+                      <mat-icon class="item-icon">memory</mat-icon>
+                      <div class="item-content">
+                        <div class="item-title">Max Memory</div>
+                        <div class="item-subtitle">{{ systemInfo.memoryUsage.max }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          } @else {
+            <mat-card class="info-card">
+              <mat-card-content>
+                <p>No system information available. Click refresh to reload.</p>
+                <button mat-raised-button color="primary" (click)="loadSystemInfo()"
+                  [disabled]="isLoading">
+                  <mat-icon>refresh</mat-icon>
+                  Refresh
+                </button>
+              </mat-card-content>
+            </mat-card>
+          }
+
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Data Management">
+        <div class="tab-content">
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Import Activities</mat-card-title>
+              <mat-card-subtitle>Import activities from configured directories</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Import all available FIT and GPX files from the configured import directories.</p>
+              <mat-checkbox [(ngModel)]="removeAllBeforeImport" [disabled]="isLoading">
+                Remove all existing activities before import
+              </mat-checkbox>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="onImportAllActivities()"
+                [disabled]="isLoading">
+                <mat-icon>cloud_download</mat-icon>
+                Import All Activities
+              </button>
+            </mat-card-actions>
+          </mat-card>
+
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Add missing towns</mat-card-title>
+              <mat-card-subtitle>Add missing towns</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Add missing towns to all activities.Currently from borders, not from corners.</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="accent" (click)="onAddMissingTowns()"
+                [disabled]="isLoading">
+                <mat-icon>cloud_upload</mat-icon>
+                Add missing towns
+              </button>
+            </mat-card-actions>
+          </mat-card>
+
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Rebuild Tiles</mat-card-title>
+              <mat-card-subtitle>Recalculate all tile metrics from activity waypoints</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Trigger a full tiles rebuild. Use this if tile data seems outdated or incorrect.</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" (click)="onRebuildTiles()" [disabled]="isLoading">
+                <mat-icon>grid_view</mat-icon>
+                Rebuild Tiles
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Cache Management">
+        <div class="tab-content">
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Clear Application Cache</mat-card-title>
+              <mat-card-subtitle>Clear cached data to free memory</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Clear all cached calculations and temporary data. This may improve performance if the
+              application is running slowly.</p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="warn" (click)="onClearCache()" [disabled]="isLoading">
+                <mat-icon>clear_all</mat-icon>
+                Clear Cache
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Account Management">
+        <div class="tab-content">
+          <mat-card class="action-card">
+            <mat-card-header>
+              <mat-card-title>Change Password</mat-card-title>
+              <mat-card-subtitle>Update your account password</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="password-form" id="password-form">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Current Password</mat-label>
+                  <input matInput type="password" formControlName="currentPassword"
+                    autocomplete="current-password" required>
+                  @if (passwordForm.get('currentPassword')?.hasError('required')) {
+                    <mat-error>
+                      Current password is required
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>New Password</mat-label>
+                  <input matInput type="password" formControlName="newPassword"
+                    autocomplete="new-password" required>
+                  @if (passwordForm.get('newPassword')?.hasError('required')) {
+                    <mat-error>
+                      New password is required
+                    </mat-error>
+                  }
+                  @if (passwordForm.get('newPassword')?.hasError('minlength')) {
+                    <mat-error>
+                      Password must be at least 4 characters long
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Confirm New Password</mat-label>
+                  <input matInput type="password" formControlName="confirmPassword"
+                    autocomplete="new-password" required>
+                  @if (passwordForm.get('confirmPassword')?.hasError('required')) {
+                    <mat-error>
+                      Please confirm your new password
+                    </mat-error>
+                  }
+                  @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched) {
+                    <mat-error
+                      >
+                      Passwords do not match
+                    </mat-error>
+                  }
+                </mat-form-field>
+              </form>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-raised-button color="primary" type="submit" form="password-form"
+                [disabled]="isLoading || !passwordForm.valid">
+                <mat-icon>security</mat-icon>
+                Change Password
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</div>

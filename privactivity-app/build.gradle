@@ -1,0 +1,114 @@
+plugins {
+    id 'privactivity.java-conventions'
+    id 'org.springframework.boot'
+    id "com.gorylenko.gradle-git-properties" version "2.5.3"
+}
+
+sourceSets {
+    archTest {
+        java.srcDir file('src/archTest/java')
+        resources.srcDir file('src/archTest/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    webApp
+    archTestImplementation.extendsFrom testImplementation
+    archTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+dependencies {
+    implementation project(':privactivity-store-rest')
+    implementation project(':privactivity-service')
+
+    implementation project(':privactivity-spring-components')
+
+    implementation project(':json-repositories')
+    implementation project(':microstream-repositories')
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    // maybe need to configure devtools for eclipse store: https://docs.eclipsestore.io/manual/misc/integrations/spring-boot.html#_spring_dev_tools
+    //developmentOnly 'org.springframework.boot:spring-boot-devtools' // TODO: makes Waypoints loading fail in maxPower calls
+    implementation 'org.eclipse.store:integrations-spring-boot3'
+
+
+    webApp project(path: ':angular', configuration: 'webApp')
+
+    testImplementation project(':privactivity-domain')
+    testImplementation project(':privactivity-store-domain')
+    testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    archTestImplementation 'com.tngtech.archunit:archunit-junit5'
+}
+
+processResources {
+    into('static') {
+        from configurations.webApp
+    }
+}
+
+// Generate build-info.properties for production builds
+springBoot {
+    buildInfo {
+        properties {
+            // Add additional build information
+            additional = [
+                    'java.version'  : System.getProperty('java.version'),
+                    'gradle.version': gradle.gradleVersion,
+                    'git.commit'    : findProperty('gitCommit') ?: 'unknown',
+                    'build.number'  : findProperty('buildNumber') ?: 'local'
+            ]
+        }
+    }
+}
+
+bootJar {
+    into('data') {
+        from 'data'
+    }
+}
+
+bootRun {
+    debugOptions {
+        enabled = true
+        port = 5005
+        server = true
+        suspend = false
+    }
+}
+
+bootBuildImage {
+    environment = [
+            'BP_JVM_VERSION'              : '25',
+            'BPE_DELIM_JAVA_TOOL_OPTIONS' : ' ',
+            'BPE_APPEND_JAVA_TOOL_OPTIONS': '-XX:MaxDirectMemorySize=1024M -XX:+UseZGC --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED -Xmx4g',
+            // Failed attempt to include additional files in the image (should work according to https://paketo.io/docs/howto/java/)
+            'BP_INCLUDE_FILES'            : '**/data/**',
+            'BP_LOG_LEVEL'                : 'DEBUG'
+    ]
+    imagePlatform = 'linux/amd64'
+    imageName = "${System.getenv('DOCKER_REGISTRY') ?: 'localhost'}/org.privactivity/activity-store:latest"
+    // ${project.version}
+    publish = true
+    cleanCache = false
+    createdDate = 'now'
+}
+
+tasks.register('archTest', Test) {
+    description = 'Runs ArchUnit architecture tests.'
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    testClassesDirs = sourceSets.archTest.output.classesDirs
+    classpath = sourceSets.archTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('archTest')
+}

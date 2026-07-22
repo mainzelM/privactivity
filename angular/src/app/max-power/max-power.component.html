@@ -1,0 +1,83 @@
+<!-- angular/src/app/max-power/max-power.component.html -->
+@if (loading) {
+  <div class="max-power-spinner-container">
+    <mat-card class="max-power-card">
+      <mat-card-content>
+        <div class="spinner-wrapper">
+          <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+          <div class="spinner-label">Loading Max Power data...</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}
+@if (!loading && maxPower) {
+  <div class="max-power-container">
+    <mat-card class="max-power-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>bolt</mat-icon>
+          Max Power Events
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-accordion class="max-power-accordion">
+          @for (duration of (maxPower.maxPowers | keyvalue); track duration) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <div class="panel-summary">
+                  <span class="panel-duration">
+                    <mat-icon>schedule</mat-icon>
+                    {{ duration.key }}
+                  </span>
+                  <span class="panel-watts">
+                    <mat-icon>bolt</mat-icon>
+                    {{ duration.value.watts }} W
+                  </span>
+                  <span class="panel-activity">
+                    <mat-icon>directions_bike</mat-icon>
+                    <a [routerLink]="['/activity-details', duration.value.activityId]"
+                      class="activity-link">
+                      {{ duration.value.activityId }}
+                    </a>
+                  </span>
+                  <span class="panel-timestamp">
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ duration.value.timestamp }}
+                  </span>
+                </div>
+              </mat-expansion-panel-header>
+              <div class="panel-details">
+                @if (duration.value.wp) {
+                  <div>
+                    <div class="detail-row">
+                      <mat-icon class="wp-icon">schedule</mat-icon>
+                      <span>Since start: {{ formatDuration(duration.value.wp.secondsSinceStart) }}</span>
+                    </div>
+                    @if (duration.value.wp.altitude !== null) {
+                      <div class="detail-row">
+                        <mat-icon class="wp-icon">terrain</mat-icon>
+                        <span>Altitude: {{ duration.value.wp.altitude.value }}</span>
+                      </div>
+                    }
+                    @if (duration.value.wp.distanceInMeter !== null) {
+                      <div class="detail-row">
+                        <mat-icon class="wp-icon">straighten</mat-icon>
+                        <span>Distance: {{ duration.value.wp.distanceInMeter.value }} m</span>
+                      </div>
+                    }
+                  </div>
+                }
+                @if (!duration.value.wp) {
+                  <div class="detail-row">
+                    <span>No further details available.</span>
+                  </div>
+                }
+              </div>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

@@ -1,0 +1,98 @@
+<!-- aggregations.component.html -->
+<div class="aggregations-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>analytics</mat-icon>
+        Activity Aggregations
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-slide-toggle [(ngModel)]="isYTD" (change)="refresh()" class="ytd-toggle">
+        Year to Date Mode
+      </mat-slide-toggle>
+    </mat-card-content>
+  </mat-card>
+
+  @if (totalAggregation) {
+    <div class="content-container">
+      <!-- Overall Totals Card -->
+      <mat-card class="totals-card highlight-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>emoji_events</mat-icon>
+            Overall Totals
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <mat-icon class="stat-icon">directions_bike</mat-icon>
+              <div class="stat-value">{{ totalAggregation.totals.km }}</div>
+              <div class="stat-label">kilometers</div>
+            </div>
+            <div class="stat-item">
+              <mat-icon class="stat-icon">schedule</mat-icon>
+              <div class="stat-value">{{ formatDuration(totalAggregation.totals.minutes) }}</div>
+              <div class="stat-label">duration</div>
+            </div>
+            <div class="stat-item">
+              <mat-icon class="stat-icon">schedule</mat-icon>
+              <div class="stat-value">{{ totalAggregation.totals.eddingtonNumber }}</div>
+              <div class="stat-label">Eddington Number</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <!-- Years Breakdown -->
+      @for (year of getKeys(totalAggregation.years); track year) {
+        <div class="year-section">
+          <mat-card class="year-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>calendar_today</mat-icon>
+                {{ year }}
+              </mat-card-title>
+              <mat-card-subtitle>
+                <div class="year-totals">
+                  <span class="total-item">
+                    <mat-icon>directions_bike</mat-icon>
+                    {{ totalAggregation.years[year].totals.km }} km
+                  </span>
+                  <span class="total-item">
+                    <mat-icon>schedule</mat-icon>
+                    {{ formatDuration(totalAggregation.years[year].totals.minutes) }}
+                  </span>
+                </div>
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="months-grid">
+                @for (month of getKeys(totalAggregation.years[year].months, true); track month) {
+                  <mat-card
+                    class="month-card">
+                    <mat-card-header>
+                      <mat-card-title class="month-title">{{ monthName(month) }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="month-stats">
+                        <div class="month-stat">
+                          <mat-icon class="month-icon">directions_bike</mat-icon>
+                          <span>{{ totalAggregation.years[year].months[month].km }} km</span>
+                        </div>
+                        <div class="month-stat">
+                          <mat-icon class="month-icon">schedule</mat-icon>
+                          <span>{{ formatDuration(totalAggregation.years[year].months[month].minutes) }}</span>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    </div>
+  }
+</div>

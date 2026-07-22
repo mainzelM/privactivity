@@ -1,0 +1,217 @@
+@if (activity) {
+    <div class="activity-details-container">
+        <mat-card class="header-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>directions_bike</mat-icon>
+                    @if (!isEditingTitle) {
+                        <span class="activity-title-text">{{ activity.title }}</span>
+                        <button mat-icon-button type="button" aria-label="Edit title" (click)="startTitleEdit()">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    } @else {
+                    <div class="title-edit-container">
+                        <mat-form-field appearance="outline" class="title-edit-field" subscriptSizing="dynamic">
+                            <mat-label>Title</mat-label>
+                            <input matInput type="text" [(ngModel)]="editedTitle" [disabled]="isSavingTitle"
+                                   (keyup.enter)="saveTitle()" (keyup.escape)="cancelTitleEdit()">
+                            @if (titleErrorMessage) {
+                                <mat-error>{{ titleErrorMessage }}</mat-error>
+                            }
+                        </mat-form-field>
+                        <div class="title-edit-actions">
+                            <button mat-icon-button type="button" aria-label="Save title"
+                                    [disabled]="isSavingTitle || !editedTitle.trim()" (click)="saveTitle()">
+                                <mat-icon>check</mat-icon>
+                            </button>
+                            <button mat-icon-button type="button" aria-label="Cancel editing"
+                                    [disabled]="isSavingTitle" (click)="cancelTitleEdit()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                }
+                </mat-card-title>
+                <mat-card-subtitle>
+                    <mat-icon>calendar_today</mat-icon>
+                    {{ activity.start | date:'medium' }}
+                </mat-card-subtitle>
+            </mat-card-header>
+        </mat-card>
+        <div class="details-grid">
+            <mat-card class="stat-card">
+                <mat-card-content>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">tag</mat-icon>
+                        <span class="stat-label">ID</span>
+                        <span class="stat-value">{{ activity.id }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">directions_bike</mat-icon>
+                        <span class="stat-label">Distance</span>
+                        <span class="stat-value">{{ activity.totals.distance / 1000 | number:'1.1-1' }} km</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">schedule</mat-icon>
+                        <span class="stat-label">Duration</span>
+                        <span class="stat-value">{{ durationUtil.formatDuration(activity.totals.duration) }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">terrain</mat-icon>
+                        <span class="stat-label">Ascent</span>
+                        <span class="stat-value">{{ activity.totals.ascent }} hm</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">speed</mat-icon>
+                        <span class="stat-label">Avg Speed</span>
+                        <span class="stat-value">{{ activity.averages.speedInMetersPerHour / 1000 | number:'1.1-1' }}
+                            km/h</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">rotate_right</mat-icon>
+                        <span class="stat-label">Avg Cadence</span>
+                        <span class="stat-value">{{ activity.averages.cadence }} rpm</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">favorite</mat-icon>
+                        <span class="stat-label">Avg Heart Rate</span>
+                        <span class="stat-value">{{ activity.averages.heartRate }} bpm</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">bolt</mat-icon>
+                        <span class="stat-label">Avg Power</span>
+                        <span class="stat-value">{{ activity.averages.power }} W</span>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+            <mat-card class="stat-card">
+                <mat-card-content>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">speed</mat-icon>
+                        <span class="stat-label">Max Speed</span>
+                        <span class="stat-value">{{ activity.maxima.speedInMetersPerHour / 1000 | number:'1.1-1' }}
+                            km/h</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">favorite</mat-icon>
+                        <span class="stat-label">Max Heart Rate</span>
+                        <span class="stat-value">{{ activity.maxima.heartRate }} bpm</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">bolt</mat-icon>
+                        <span class="stat-label">Max Power</span>
+                        <span class="stat-value">{{ activity.maxima.power }} W</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">terrain</mat-icon>
+                        <span class="stat-label">Max Altitude</span>
+                        <span class="stat-value">{{ activity.maxima.altitude }} m</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">insights</mat-icon>
+                        <span class="stat-label">Training Stress Score</span>
+                        <span class="stat-value">{{
+                                activity.summary.trainingStressScore != null ?
+                                    (activity.summary.trainingStressScore | number:'1.0-1') : '-'
+                            }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">psychology</mat-icon>
+                        <span class="stat-label">Totoal Training Effect</span>
+                        <span class="stat-value">{{
+                                activity.summary.totalTrainingEffect != null ? activity.summary.totalTrainingEffect : '-'
+                            }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">show_chart</mat-icon>
+                        <span class="stat-label">Intensity Factor</span>
+                        <span class="stat-value">{{
+                                activity.summary.intensityFactor != null ?
+                                    (activity.summary.intensityFactor | number:'1.2-2') : '-'
+                            }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">directions_run</mat-icon>
+                        <span class="stat-label">Ø Left PCO</span>
+                        <span class="stat-value">{{
+                                activity.summary.avgLeftPco != null ? activity.summary.avgLeftPco : '-'
+                            }}</span>
+                    </div>
+                    <div class="stat-row">
+                        <mat-icon class="stat-icon">directions_run</mat-icon>
+                        <span class="stat-label">Ø Right PCO</span>
+                        <span class="stat-value">{{
+                                activity.summary.avgRightPco != null ? activity.summary.avgRightPco :
+                                    '-'
+                            }}</span>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <mat-card class="section-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>map</mat-icon>
+                    Waypoints
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="map-container" leaflet [leafletFitBounds]="fitBounds" [leafletOptions]="options"
+                     [leafletLayers]="layers" (leafletMapReady)="onMapReady($event)">
+                </div>
+            </mat-card-content>
+        </mat-card>
+        @if (activity.waypoints.length) {
+            <mat-card class="section-card">
+                <mat-card-header>
+                    <mat-card-title>
+                        <mat-icon>terrain</mat-icon>
+                        Elevation Profile, Heart Rate and Power
+                    </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <app-elevation-profile [waypoints]="activity.waypoints"
+                                           (waypointHovered)="onWaypointHovered($event)">
+                    </app-elevation-profile>
+                </mat-card-content>
+            </mat-card>
+        }
+        <max-power></max-power>
+        <!-- Towns Information Card -->
+        <mat-card class="towns-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>location_city</mat-icon>
+                    Places along the route
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="towns-section">
+                    <div class="town-type">
+                        <mat-icon class="town-icon">route</mat-icon>
+                        <strong>Along the route:</strong>
+                        <span class="town-list">{{ towns?.join(', ') || 'Loading...' }}</span>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div class="town-type">
+                        <mat-icon class="town-icon">crop_free</mat-icon>
+                        <strong>At the bounds:</strong>
+                        <span class="town-list">{{ boundsTowns?.join(', ') || 'Loading...' }}</span>
+                    </div>
+                    <mat-divider></mat-divider>
+                    <div class="town-type">
+                        <mat-icon class="town-icon">my_location</mat-icon>
+                        <strong>At the corners:</strong>
+                        <span class="town-list">{{ cornerTowns?.join(', ') || 'Loading...' }}</span>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <div class="export-section">
+            <button mat-raised-button color="primary" (click)="exportAsCsv()">
+                <mat-icon>download</mat-icon>
+                CSV Export
+            </button>
+        </div>
+    </div>
+}

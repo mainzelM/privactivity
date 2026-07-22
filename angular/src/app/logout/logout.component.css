@@ -1,0 +1,20 @@
+.logout-container {
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+}
+
+.logout-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+mat-card-actions {
+    padding: 0 16px 16px;
+}
+
+button[mat-raised-button] {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}

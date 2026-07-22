@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Configure CSV Export</h2>
+
+<mat-dialog-content>
+  <form class="dialog-form" [formGroup]="form">
+    <div class="checkbox-grid">
+      <mat-checkbox formControlName="latLon">Lat/Lon</mat-checkbox>
+      <mat-checkbox formControlName="speed">Speed</mat-checkbox>
+      <mat-checkbox formControlName="power">Power</mat-checkbox>
+      <mat-checkbox formControlName="heartRate">Heart Rate</mat-checkbox>
+      <mat-checkbox formControlName="cadence">Cadence</mat-checkbox>
+      <mat-checkbox formControlName="altitude">Altitude</mat-checkbox>
+      <mat-checkbox formControlName="lap">Lap</mat-checkbox>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Seconds per averaging window</mat-label>
+      <input matInput type="number" min="1" formControlName="secondsToAverage">
+      @if (form.controls.secondsToAverage.hasError('required')) {
+        <mat-error>
+          Please enter a value.
+        </mat-error>
+      }
+      @if (form.controls.secondsToAverage.hasError('min')) {
+        <mat-error>
+          The value must be at least 1.
+        </mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" (click)="submit()">Export</button>
+</mat-dialog-actions>

@@ -1,0 +1,17 @@
+plugins {
+    id 'privactivity.library-conventions'
+}
+
+
+dependencies {
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+
+    implementation("com.garmin:fit")
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.assertj:assertj-core'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}

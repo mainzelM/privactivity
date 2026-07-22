@@ -1,0 +1,190 @@
+<div class="activities-container">
+    <mat-card class="header-card">
+        <mat-card-header>
+            <mat-card-title>
+                <mat-icon>directions_run</mat-icon>
+                All Activities
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="filter-content">
+            <div class="filter-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Title</mat-label>
+                    <input matInput type="text" [(ngModel)]="titleFilter">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Tile ID</mat-label>
+                    <input matInput type="text" [(ngModel)]="tileIdFilter">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Min Distance (km)</mat-label>
+                    <input matInput type="number" [(ngModel)]="minDistanceKm">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Max Distance (km)</mat-label>
+                    <input matInput type="number" [(ngModel)]="maxDistanceKm">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Min Ascent (m)</mat-label>
+                    <input matInput type="number" [(ngModel)]="minAscent">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Max Ascent (m)</mat-label>
+                    <input matInput type="number" [(ngModel)]="maxAscent">
+                </mat-form-field>
+                <button mat-raised-button color="primary" (click)="applyFilter()">Apply Filter</button>
+                <button mat-stroked-button (click)="resetFilters()">Reset</button>
+            </div>
+            <div class="map-container" style="height: 300px; margin-top: 16px; border-radius: 4px; overflow: hidden;"
+                 leaflet [leafletOptions]="options" [leafletLayers]="layers" (leafletClick)="onMapClick($event)"
+                 (leafletMapReady)="onMapReady($event)" [leafletCenter]="mapCenter">
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <mat-card class="table-card">
+        <mat-card-content>
+            <div class="track-actions" [style.display]="selection.selected.length > 0 ? '' : 'none'">
+                <button mat-raised-button color="primary" (click)="showSelectedTracks()">
+                    <mat-icon>map</mat-icon>
+                    Show {{ selection.selected.length }} selected track(s) on map
+                </button>
+                <button mat-stroked-button (click)="clearTrackLayers()">
+                    <mat-icon>close</mat-icon>
+                    Clear tracks
+                </button>
+            </div>
+            <div class="spinner-container" [style.display]="loading ? '' : 'none'">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+            <table mat-table [dataSource]="activities" [style.display]="loading ? 'none' : ''"
+                   class="mat-elevation-z8 activities-table">
+                <!-- Select Column -->
+                <ng-container matColumnDef="select">
+                    <th mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="isAllSelected()"
+                                      [indeterminate]="selection.selected.length > 0 && !isAllSelected()">
+                        </mat-checkbox>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" (click)="$event.stopPropagation()">
+                        <mat-checkbox (change)="$event ? selection.toggle(activity) : null"
+                                      [checked]="selection.isSelected(activity)">
+                        </mat-checkbox>
+                    </td>
+                </ng-container>
+
+                <!-- ID Column -->
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef class="sortable-header" (click)="onSortChange('id')">
+                        <span class="header-content">
+                            ID
+                            <mat-icon class="sort-icon">
+                                @if (sortBy === 'id') {
+                                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                                }
+                            </mat-icon>
+                        </span>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details"> {{ activity.id }}
+                    </td>
+                </ng-container>
+
+                <!-- Title Column -->
+                <ng-container matColumnDef="title">
+                    <th mat-header-cell *matHeaderCellDef class="sortable-header" (click)="onSortChange('title')">
+                        <span class="header-content">
+                            Title
+                            <mat-icon class="sort-icon">
+                                @if (sortBy === 'title') {
+                                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                                }
+                            </mat-icon>
+                        </span>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details"> {{ activity.title }}
+                    </td>
+                </ng-container>
+
+                <!-- Date Column -->
+                <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef class="sortable-header" (click)="onSortChange('date')">
+                        <span class="header-content">
+                            Date
+                            <mat-icon class="sort-icon">
+                                @if (sortBy === 'date') {
+                                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                                }
+                            </mat-icon>
+                        </span>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details">
+                        {{ activity.start | date:'dd.MM.yyyy' }}
+                    </td>
+                </ng-container>
+
+                <!-- Distance Column -->
+                <ng-container matColumnDef="distance">
+                    <th mat-header-cell *matHeaderCellDef class="sortable-header" (click)="onSortChange('distance')">
+                        <span class="header-content">
+                            Distance (km)
+                            <mat-icon class="sort-icon">
+                                @if (sortBy === 'distance') {
+                                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                                }
+                            </mat-icon>
+                        </span>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details">
+                        {{ (activity.totals.distance / 1000) | number:'1.2-2' }}
+                    </td>
+                </ng-container>
+
+                <!-- Ascent Column -->
+                <ng-container matColumnDef="ascent">
+                    <th mat-header-cell *matHeaderCellDef class="sortable-header" (click)="onSortChange('ascent')">
+                        <span class="header-content">
+                            Ascent (m)
+                            <mat-icon class="sort-icon">
+                                @if (sortBy === 'ascent') {
+                                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                                }
+                            </mat-icon>
+                        </span>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details">
+                        {{ activity.totals.ascent | number:'1.0-0' }}
+                    </td>
+                </ng-container>
+
+                <!-- Duration Column -->
+                <ng-container matColumnDef="duration">
+                    <th mat-header-cell *matHeaderCellDef class="sortable-header" (click)="onSortChange('duration')">
+                        <span class="header-content">
+                            Moving Time
+                            <mat-icon class="sort-icon">
+                                @if (sortBy === 'duration') {
+                                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                                }
+                            </mat-icon>
+                        </span>
+                    </th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details">
+                        {{ formatDuration(activity.totals.duration) }}
+                    </td>
+                </ng-container>
+
+                <!-- Details Icon Column -->
+                <ng-container matColumnDef="details">
+                    <th mat-header-cell *matHeaderCellDef></th>
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details">
+                        <mat-icon class="details-arrow">chevron_right</mat-icon>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onRowClicked(row)"
+                    (keydown.enter)="onRowClicked(row)" class="clickable-row"></tr>
+            </table>
+        </mat-card-content>
+    </mat-card>
+</div>

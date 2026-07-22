@@ -1,0 +1,92 @@
+:host {
+  --content-padding: 10px;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+header {
+  display: block;
+  height: 60px;
+  padding: var(--content-padding);
+}
+
+.app-background {
+  min-height: 100vh;
+  background: linear-gradient(120deg, var(--mat-sys-primary-container) 0%, var(--mat-sys-surface) 100%);
+}
+
+.app-header-card {
+  margin: 0 auto 32px auto;
+  max-width: 1200px;
+  background: linear-gradient(90deg, var(--mat-sys-primary) 0%, var(--mat-sys-secondary) 100%);
+  color: var(--mat-sys-on-primary);
+  box-shadow: 0 4px 20px var(--mat-sys-shadow);
+  border-radius: 0 0 16px 16px;
+  padding: 0 24px;
+}
+
+.linkheader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 32px;
+  height: 72px;
+}
+
+.brand-name {
+  display: flex;
+  align-items: center;
+  height: 60px;
+}
+
+.brand-logo {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 2px 8px var(--mat-sys-secondary));
+  transition: transform 0.2s;
+}
+
+.admin-nav-button {
+  height: auto;
+  width: auto;
+  border: none;
+  vertical-align: middle;
+}
+
+.admin-nav-icon {
+  font-size: 40px;
+  height: auto;
+  width: auto;
+  border: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: background 0.2s;
+  padding: 4px 8px;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  background: rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+}
+
+.content {
+  padding: var(--content-padding);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1200px) {
+
+  .app-header-card,
+  .content {
+    max-width: 100%;
+  }
+
+  .linkheader {
+    gap: 16px;
+  }
+}

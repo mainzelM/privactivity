@@ -1,0 +1,15 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'privactivity.java-conventions'
+}
+
+group 'org.privactivity.store'
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            from components.java
+        }
+    }
+}

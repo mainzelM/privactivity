@@ -1,0 +1,18 @@
+.login-form {
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    width: 100%;
+}
+
+.form-field {
+    width: 100%;
+}
+
+.form-actions {
+    padding-top: 4px;
+}

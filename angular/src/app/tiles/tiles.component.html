@@ -1,0 +1,162 @@
+<section class="tiles-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>grid_view</mat-icon>
+        Tiles
+      </mat-card-title>
+      <mat-card-subtitle>
+        Aggregated activity metrics as colour-coded map tiles
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <div class="tiles-layout">
+    <mat-card class="map-card">
+      <div class="toolbar">
+        <mat-form-field appearance="outline">
+          <mat-label>Metric</mat-label>
+          <mat-select [(ngModel)]="metric" (selectionChange)="onMetricChange()">
+            @for (metricOption of metrics; track metricOption) {
+              <mat-option [value]="metricOption.value">
+                {{ metricOption.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="toolbar-actions">
+          <button mat-stroked-button type="button" (click)="reloadTiles()">Reload</button>
+        </div>
+      </div>
+
+      @if (loading && !(response?.tiles?.length)) {
+        <div class="loading-state">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+      }
+
+      @if (!loading && errorMessage) {
+        <div class="empty-state">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ errorMessage }}</p>
+        </div>
+      }
+
+      @if (!loading && !errorMessage && response?.tiles?.length === 0) {
+        <div class="empty-state">
+          <mat-icon>map</mat-icon>
+          <p>No tiles available yet.</p>
+        </div>
+      }
+
+      @if (!errorMessage && response?.tiles?.length) {
+        <div class="map-shell">
+          <div leaflet [leafletOptions]="options" [leafletLayers]="layers" (leafletMapReady)="onMapReady($event)">
+          </div>
+        </div>
+      }
+    </mat-card>
+
+    @if (response; as data) {
+      <mat-card class="details-card">
+        <mat-card-header>
+          <mat-card-title>Legend</mat-card-title>
+          <mat-card-subtitle>{{ metricLabel() }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="legend-grid">
+            <div>
+              <span>Min</span>
+              <strong>{{ data.legend.min ?? 'n/a' }}</strong>
+            </div>
+            <div>
+              <span>Q5</span>
+              <strong>{{ quantileLabel(data.legend, 4) }}</strong>
+            </div>
+            <div>
+              <span>Q10</span>
+              <strong>{{ quantileLabel(data.legend, 9) }}</strong>
+            </div>
+            <div>
+              <span>Q15</span>
+              <strong>{{ quantileLabel(data.legend, 14) }}</strong>
+            </div>
+            <div>
+              <span>Max</span>
+              <strong>{{ data.legend.max ?? 'n/a' }}</strong>
+            </div>
+          </div>
+          <div class="meta-row">
+            <span>Generated</span>
+            <strong>{{
+              data.generatedAt ? (data.generatedAt | date:'dd.MM.yyyy HH:mm') : 'not yet'
+            }}</strong>
+          </div>
+          <div class="meta-row">
+            <span>Tiles</span>
+            <strong>{{ data.tiles.length }}</strong>
+          </div>
+          @if (selectedTile; as tile) {
+            <div class="detail-section" id="tile-details">
+              <h3>Selected Tile</h3>
+              <div class="meta-row">
+                <span>View activities</span>
+                <strong>
+                  <a [routerLink]="['/']" [queryParams]="{ tileId: tile.tileId }">To activity overview</a>
+                </strong>
+              </div>
+              <div class="detail-grid">
+                <div><span>ID</span><strong>{{ tile.tileId }}</strong></div>
+                <div><span>Activities</span><strong>{{ tile.activityIds.length }}</strong></div>
+                <div><span>First Activity</span><strong>
+                @if (tile.firstActivityId !== null) {
+                  <a
+                    [routerLink]="['/activity-details', tile.firstActivityId]">{{
+                    tile.firstActivityId
+                  }}</a>
+                }
+                @if (tile.firstActivityId === null) {
+                  <span>n/a</span>
+                }
+              </strong></div>
+              <div><span>Latest Activity</span><strong>
+              @if (tile.latestActivityId !== null) {
+                <a
+                  [routerLink]="['/activity-details', tile.latestActivityId]">{{
+                  tile.latestActivityId
+                }}</a>
+              }
+              @if (tile.latestActivityId === null) {
+                <span>n/a</span>
+              }
+            </strong></div>
+            <div><span>Max Power</span><strong>{{ tile.maxPower ?? 'n/a' }}</strong></div>
+            <div><span>Max Heart Rate</span><strong>{{ tile.maxHeartRate ?? 'n/a' }}</strong></div>
+            <div><span>Ø Power</span><strong>{{
+            tile.averagePower !== null ? (tile.averagePower |
+            number:'1.0-0') : 'n/a'
+          }}</strong></div>
+          <div><span>Avg Heart Rate</span><strong>{{
+          tile.averageHeartRate !== null ?
+          (tile.averageHeartRate | number:'1.0-0') : 'n/a'
+        }}</strong></div>
+        <div class="activity-ids-card">
+          <span>All Activity IDs</span>
+          <strong class="activity-ids-list">
+            @for (activityId of tile.activityIds; track activityId; let last = $last) {
+              <a [routerLink]="['/activity-details', activityId]">{{ activityId }}</a>@if (!last) {
+              <span
+              >, </span>
+            }
+          }
+        </strong>
+      </div>
+    </div>
+  </div>
+}
+</mat-card-content>
+</mat-card>
+}
+</div>
+</section>

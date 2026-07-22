@@ -1,0 +1,52 @@
+<div class="app-background">
+  <mat-card class="app-header-card">
+    <div class="linkheader">
+      @if (loggedIn()) {
+        <a [routerLink]="['/']" class="nav-link" matTooltip="Activities">
+          <header class="brand-name">
+            <img class="brand-logo" src="/assets/logo.svg" alt="logo" aria-hidden="true"/>
+          </header>
+        </a>
+      }
+      @if (loggedIn()) {
+        <a [routerLink]="['/aggregations']" class="nav-link" matTooltip="Aggregations">
+          <header class="brand-name">
+            <img class="brand-logo" src="/assets/sigma-sum-icon.svg" alt="Aggregations" aria-hidden="true"/>
+          </header>
+        </a>
+      }
+      @if (loggedIn()) {
+        <a [routerLink]="['/max-power']" class="nav-link" matTooltip="Max Power">
+          <header class="brand-name">
+            <img class="brand-logo" src="/assets/plug-circle-bolt-solid.svg" alt="Max Power"
+              aria-hidden="true"/>
+          </header>
+        </a>
+      }
+      @if (loggedIn()) {
+        <header class="brand-name">
+          <button mat-icon-button [routerLink]="['/tiles']" matTooltip="Tiles" class="admin-nav-button">
+            <mat-icon class="admin-nav-icon">grid_view</mat-icon>
+          </button>
+        </header>
+      }
+      @if (adminAccess()) {
+        <header class="brand-name">
+          <button mat-icon-button [routerLink]="['/admin']" matTooltip="Administration" class="admin-nav-button">
+            <mat-icon class="admin-nav-icon">settings</mat-icon>
+          </button>
+        </header>
+      }
+      @if (loggedIn()) {
+        <header class="brand-name">
+          <button mat-icon-button [routerLink]="['/logout']" matTooltip="Logout" class="admin-nav-button">
+            <mat-icon class="admin-nav-icon">power_settings_new</mat-icon>
+          </button>
+        </header>
+      }
+    </div>
+  </mat-card>
+  <section class="content">
+    <router-outlet></router-outlet>
+  </section>
+</div>

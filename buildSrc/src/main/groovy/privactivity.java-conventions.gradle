@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+version = '1.6'
+
+repositories {
+    maven {
+        url = "https://repo.osgeo.org/repository/release/"
+    }
+    mavenCentral()
+    //mavenLocal()
+}
+
+
+dependencies {
+    implementation platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    implementation platform(project(':privactivity-platform'))
+    testImplementation platform(project(':privactivity-platform'))
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+plugins.withId('java-test-fixtures') {
+    dependencies {
+        testFixturesImplementation platform(project(':privactivity-platform'))
+    }
+}
+
+// Enable deprecation messages when compiling Java code
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:deprecation" << "-parameters"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.withType(Test).configureEach {
+    jvmArgs += ['--add-exports', 'java.base/jdk.internal.misc=ALL-UNNAMED']
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs += ["--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED"]
+}

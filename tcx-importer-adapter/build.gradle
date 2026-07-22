@@ -1,0 +1,64 @@
+plugins {
+    id 'privactivity.library-conventions'
+}
+
+configurations {
+    jaxb
+}
+
+dependencies {
+    jaxb platform(project(':privactivity-platform'))
+
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+    implementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+    implementation 'org.glassfish.jaxb:jaxb-runtime'
+
+    jaxb 'org.glassfish.jaxb:jaxb-xjc'
+    jaxb 'org.glassfish.jaxb:jaxb-runtime'
+    jaxb 'jakarta.xml.bind:jakarta.xml.bind-api'
+
+    implementation 'org.slf4j:slf4j-api'
+    testRuntimeOnly 'ch.qos.logback:logback-classic'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.assertj:assertj-core'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', layout.buildDirectory.dir("generated-sources/xjc")]
+        }
+    }
+}
+
+task generateJaxb(type: JavaExec) {
+    description = 'Generate Java classes from XSD using XJC'
+    group = 'build'
+
+    classpath = configurations.jaxb
+    mainClass = 'com.sun.tools.xjc.XJCFacade'
+
+    // Declare inputs for up-to-date checking
+    inputs.files("src/main/schema/TrainingCenterDatabasev2.xsd", "src/main/schema/binding.xjb")
+
+    // Declare outputs for up-to-date checking and directory creation
+    outputs.dir(layout.buildDirectory.dir("generated-sources/xjc"))
+
+    args = [
+            '-d', layout.buildDirectory.dir("generated-sources/xjc").get().asFile.absolutePath,
+            "-no-header",
+            "-b", "src/main/schema/binding.xjb",
+            "-nv",
+            "-target", "3.0",
+            "-extension",
+            'src/main/schema/TrainingCenterDatabasev2.xsd'
+    ]
+}
+
+compileJava.dependsOn generateJaxb
+
+clean {
+    delete(layout.buildDirectory.dir("generated-sources"))
+}

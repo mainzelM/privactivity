@@ -1,0 +1,44 @@
+plugins {
+    id 'privactivity.library-conventions'
+    id "me.champeau.jmh" version "0.7.3"
+}
+
+dependencies {
+    jmh platform(project(':privactivity-platform'))
+    jmhAnnotationProcessor platform(project(':privactivity-platform'))
+
+    implementation project(':geotools-town-finder-adapter')
+    implementation project(':privactivity-store-domain')
+    implementation(testFixtures(project(":geotools-town-finder-adapter")))
+    implementation(testFixtures(project(":privactivity-store-domain")))
+
+    implementation 'org.locationtech.jts:jts-core'
+    implementation "org.geotools:gt-shapefile"
+    implementation "org.geotools:gt-main"
+    implementation "org.geotools:gt-epsg-hsql"
+
+
+    implementation project(':privactivity-domain')
+
+    implementation 'org.slf4j:slf4j-api'
+    jmh 'ch.qos.logback:logback-classic'
+
+    jmhAnnotationProcessor("org.openjdk.jmh:jmh-core")
+    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess")
+    jmh 'org.openjdk.jmh:jmh-core'
+    jmh 'org.openjdk.jmh:jmh-generator-annprocess'
+    jmh 'org.openjdk.jmh:jmh-generator-bytecode'
+}
+
+
+jmh {
+    //warmupIterations = 2
+    //iterations = 5
+    //fork = 1
+}
+
+tasks.named('jar', Jar) {
+    manifest {
+        attributes 'Main-Class': 'net.privactivity.jmh.TownFinderBenchmark'
+    }
+}

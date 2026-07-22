@@ -1,0 +1,28 @@
+plugins {
+    id 'java-platform'
+}
+
+group 'org.privactivity.store'
+
+dependencies {
+    constraints {
+        api('io.jenetics:jpx:4.0.0')
+        api('org.eclipse.store:integrations-spring-boot3:4.1.0')
+        api('org.eclipse.serializer:serializer:4.1.0')
+        api('org.locationtech.jts:jts-core:1.20.0')
+        api('org.geotools:gt-shapefile:33.2')
+        api('org.geotools:gt-main:33.2')
+        api('org.geotools:gt-epsg-hsql:33.2')
+        api('org.openjdk.jmh:jmh-core:1.37')
+        api('org.openjdk.jmh:jmh-generator-annprocess:1.37')
+        api('org.openjdk.jmh:jmh-generator-bytecode:1.37')
+        api('org.glassfish.jaxb:jaxb-xjc:4.0.9')
+        api('org.glassfish.jaxb:jaxb-runtime:4.0.9')
+        api('jakarta.xml.bind:jakarta.xml.bind-api:4.0.5')
+        api('de.grundid.opendatalab:geojson-jackson:3.0')
+        api('com.tngtech.archunit:archunit-junit5:1.4.2')
+        api('com.garmin:fit:21.205.0')
+        api('io.netty:netty-resolver-dns-native-macos:4.2.16.Final')
+        api('ch.qos.logback:logback-classic:1.5.38')
+    }
+}

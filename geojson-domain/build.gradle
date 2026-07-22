@@ -1,0 +1,18 @@
+plugins {
+    id 'privactivity.library-conventions'
+}
+
+dependencies {
+    implementation project(':privactivity-domain')
+    implementation project(':privactivity-store-domain')
+
+    implementation 'de.grundid.opendatalab:geojson-jackson'
+
+
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation(testFixtures(project(':privactivity-store-domain')))
+}
