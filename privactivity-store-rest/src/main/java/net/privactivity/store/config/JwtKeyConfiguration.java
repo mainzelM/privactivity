@@ -7,9 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.Resource;
 import org.springframework.security.converter.RsaKeyConverters;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -65,12 +63,13 @@ public class JwtKeyConfiguration {
 
     @Bean
     @Profile("docker")
-    public KeyPair dockerJwtKeyPair(@Value("${jwt.public.key}") Resource publicKeyResource,
-                                    @Value("${jwt.private.key}") Resource privateKeyResource) {
+    public KeyPair dockerJwtKeyPair(@Value("${jwt.public.key}") String publicKeyPath,
+                                    @Value("${jwt.private.key}") String privateKeyPath) {
         try {
-            log.info("Loading JWT public key from {}", publicKeyResource);
-            RSAPublicKey publicKey = readKey(publicKeyResource, "jwt.public.key", RsaKeyConverters.x509());
-            RSAPrivateKey privateKey = readKey(privateKeyResource, "jwt.private.key", RsaKeyConverters.pkcs8());
+            Path privatePath = asPath(privateKeyPath, "jwt.dev.private-key-path");
+            Path publicPath = asPath(publicKeyPath, "jwt.dev.public-key-path");
+            RSAPublicKey publicKey = readKey(publicPath, "jwt.public.key", RsaKeyConverters.x509());
+            RSAPrivateKey privateKey = readKey(privatePath, "jwt.private.key", RsaKeyConverters.pkcs8());
             return new KeyPair(publicKey, privateKey);
         } catch (Exception e) {
             throw new IllegalStateException("Cannot initialize RSA key pair generator.", e);
@@ -87,27 +86,15 @@ public class JwtKeyConfiguration {
         return (RSAPrivateKey) jwtKeyPair.getPrivate();
     }
 
-    private <T> T readKey(Resource resource, String propertyName, Converter<InputStream, T> converter) {
-        if (!resource.exists() || !resource.isReadable()) {
-            throw new IllegalStateException("Configured resource for " + propertyName
-                                            + " does not exist or is not readable: " + resource);
-        }
-
-        try (InputStream inputStream = resource.getInputStream()) {
-            T key = converter.convert(inputStream);
-            if (key == null) {
-                throw new IllegalStateException("Parsed key for " + propertyName + " is null: " + resource);
-            }
-            return key;
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to read key resource for " + propertyName + ": " + resource, e);
-        }
-    }
-
     private <T> T readKey(Path path, String propertyName, Converter<InputStream, T> converter) {
-        if (!Files.exists(path) || !Files.isReadable(path)) {
+        if (!Files.exists(path)) {
             throw new IllegalStateException("Configured file for " + propertyName
-                                            + " does not exist or is not readable: " + path.toAbsolutePath());
+                                            + " does not exist: " + path.toAbsolutePath());
+        }
+
+        if (!Files.isReadable(path)) {
+            throw new IllegalStateException("Configured file for " + propertyName
+                                            + " exists but is not readable: " + path.toAbsolutePath());
         }
 
         try (InputStream inputStream = Files.newInputStream(path)) {

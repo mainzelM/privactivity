@@ -58,6 +58,41 @@ unified Angular frontend.
    ./gradlew ngServe
    ```
 
+### Installation using the Docker image
+
+1. **Build the image:**
+   ```bash
+   ./build-docker-image.sh
+   ```
+   This creates the `org.privactivity/activity-store:latest` image in the registry configured by `DOCKER_REGISTRY`
+   (`localhost` by default).
+
+2. **Prepare persistent files and directories:**
+   The Docker profile expectes application data under `/privactivity`. Create a local directory `/path/to/privactivity`
+   for it.
+
+3. **Initial admin password:**
+   Create a file `/path/to/privactivity/admin-password.txt` and add a line with the initial password for the admin user.
+
+4. **Generate the JWT key pair:**
+   The Docker profile expects PEM-encoded RSA keys at `/privactivity/jwt/app.key` and `/privactivity/jwt/app.pub`.
+   Generate them once:
+   ```bash
+   mkdir -p /path/to/privactivity/jwt
+   openssl genpkey -algorithm RSA -out /path/to/privactivity/jwt/app.key -pkeyopt rsa_keygen_bits:2048
+   openssl rsa -pubout -in /path/to/privactivity/jwt/app.key -out /path/to/privactivity/jwt/app.pub
+   ```
+
+5. **Run the container:**
+   ```bash
+   docker run --rm \
+     -p 8090:8090 \
+     -e SPRING_PROFILES_ACTIVE=docker \
+     -v /path/to/privactivity:/privactivity \
+     localhost/org.privactivity/activity-store:latest
+   ```
+   The application is then available at `http://localhost:8090`.
+
 ## Documentation
 
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** — Architecture, layering, workflow, and testing conventions
