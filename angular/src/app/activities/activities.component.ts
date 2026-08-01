@@ -156,7 +156,7 @@ export class ActivitiesComponent implements OnInit {
                 const layer =
                     geoJSON(geojsonData, {
                         style: () => ({color, weight: 3}),
-                        coordsToLatLng: (coords: any) => new LatLng(coords.latitude, coords.longitude, coords.altitude),
+                        coordsToLatLng: (coords: any) => new LatLng(coords[1], coords[0], coords[2])
                     });
                 this.trackLayers.push(layer);
                 this.layers.push(layer);

@@ -255,14 +255,14 @@ export class ActivityDetailsComponent implements OnInit {
             const routeLayer = geoJSON(geojson,
                 {
                     style: () => ({color: '#ff7800'}),
-                    coordsToLatLng: (coords: any) => new LatLng(coords.latitude, coords.longitude, coords.altitude),
+                    coordsToLatLng: (coords: any) => new LatLng(coords[1], coords[0], coords[2])
                 }
             );
 
             // Invisible wider layer for easier mouse interaction
             const hitArea = geoJSON(geojson, {
                 style: () => ({color: 'transparent', weight: 30, opacity: 0}),
-                coordsToLatLng: (coords: any) => new LatLng(coords.latitude, coords.longitude, coords.altitude)
+                coordsToLatLng: (coords: any) => new LatLng(coords[1], coords[0], coords[2])
             });
             hitArea.on('mousemove', (e: LeafletMouseEvent) => {
                 this.onRouteHover(e.latlng.lat, e.latlng.lng);
