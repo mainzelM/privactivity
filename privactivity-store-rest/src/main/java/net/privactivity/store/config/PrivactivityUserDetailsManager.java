@@ -26,7 +26,7 @@ public class PrivactivityUserDetailsManager extends InMemoryUserDetailsManager {
     public PrivactivityUserDetailsManager(
             PasswordEncoder passwordEncoder,
             @Value("${privactivity.users.file.path:users.json}") String usersFilePath,
-            @Value("${privactivity.bootstrap.admin-password-file.path:admin-password.txt}") String initialAdminPasswordFilePath) {
+            @Value("${privactivity.bootstrap.admin-password-file.path}") String initialAdminPasswordFilePath) {
         this.passwordEncoder = passwordEncoder;
         this.usersFilePath = usersFilePath;
         this.initialAdminPasswordFilePath = initialAdminPasswordFilePath;

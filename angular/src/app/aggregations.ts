@@ -13,3 +13,5 @@ export interface TotalAggregation {
     years: { [key: string]: YearlyAggregation };
     totals: Aggregation;
 }
+
+export type MovingSum = { [date: string]: number };

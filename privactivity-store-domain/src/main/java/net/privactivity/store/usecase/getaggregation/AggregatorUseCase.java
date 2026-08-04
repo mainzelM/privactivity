@@ -37,7 +37,7 @@ public class AggregatorUseCase {
     public TotalAggregation aggregateYTD() {
         List<Activity> activities = activityRepository.getAll(false);
         ZonedDateTime now = ZonedDateTime.now();
-        Predicate<Activity> upToNow = a -> a.start().getDayOfYear() < now.getDayOfYear();
+        Predicate<Activity> upToNow = a -> a.start().getDayOfYear() <= now.getDayOfYear();
         int[] months = IntStream.rangeClosed(1, now.getMonthValue()).toArray();
         TotalAggregation aggregate = aggregator.aggregateFiltered(activities, upToNow);
         AggregationFilter filter = new AggregationFilter();

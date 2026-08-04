@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/aggregations")
@@ -42,5 +44,10 @@ public class AggregationsResource {
         TotalAggregation totalAggregation = aggregatorService.aggregateYTD();
         int eddingtonNumber = aggregatorService.eddingtonNumber();
         return new TotalAggregationDTO(totalAggregation, eddingtonNumber);
+    }
+
+    @GetMapping("moving-sum")
+    public Map<LocalDate, Integer> movingSum(@RequestParam(value = "numDays", defaultValue = "365") int numDays) {
+        return aggregatorService.movingSum(numDays);
     }
 }

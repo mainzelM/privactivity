@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {environment} from '../environments/environment';
 
-import {TotalAggregation} from "./aggregations";
+import {MovingSum, TotalAggregation} from "./aggregations";
 import {Observable} from "rxjs";
 
 @Injectable({
@@ -11,6 +11,7 @@ import {Observable} from "rxjs";
 export class AggregationsService {
     private baseUrl = environment.apiUrl + '/aggregations';
     private baseUrlYTD = environment.apiUrl + '/aggregations/ytd';
+    private movingSumUrl = environment.apiUrl + '/aggregations/moving-sum';
 
     constructor(private http: HttpClient) {
     }
@@ -21,5 +22,10 @@ export class AggregationsService {
             params = params.set('months', months);
         }
         return this.http.get<TotalAggregation>(isYTD ? this.baseUrlYTD : this.baseUrl);
+    }
+
+    getMovingSum(numDays: number = 365): Observable<MovingSum> {
+        const params = new HttpParams().set('numDays', numDays);
+        return this.http.get<MovingSum>(this.movingSumUrl, {params});
     }
 }
