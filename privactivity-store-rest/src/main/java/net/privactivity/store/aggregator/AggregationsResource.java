@@ -50,4 +50,9 @@ public class AggregationsResource {
     public Map<LocalDate, Integer> movingSum(@RequestParam(value = "numDays", defaultValue = "365") int numDays) {
         return aggregatorService.movingSum(numDays);
     }
+
+    @GetMapping("eddington-chart")
+    public EddigtionChartDTO eddingtonChart() {
+        return new EddigtionChartDTO(aggregatorService.eddingtionChart());
+    }
 }

@@ -116,6 +116,30 @@
                     </mat-card>
                 </div>
             </mat-tab>
+            <mat-tab label="Eddington Chart">
+                <div class="moving-sum-container">
+                    <mat-card class="moving-sum-card">
+                        <mat-card-header>
+                            <mat-card-title>
+                                <mat-icon>bar_chart</mat-icon>
+                                Eddington Chart
+                            </mat-card-title>
+                            @if (eddigtionChart) {
+                                <mat-card-subtitle>
+                                    Eddington Number: {{ eddigtionChart.eddigtionNumber }}
+                                </mat-card-subtitle>
+                            }
+                        </mat-card-header>
+                        <mat-card-content>
+                            <div class="eddington-chart">
+                                <canvas baseChart [data]="eddingtonChartData" [options]="eddingtonChartOptions"
+                                        type="bar">
+                                </canvas>
+                            </div>
+                        </mat-card-content>
+                    </mat-card>
+                </div>
+            </mat-tab>
         </mat-tab-group>
     }
 </div>

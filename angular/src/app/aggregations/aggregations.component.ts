@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {MovingSum, TotalAggregation} from '../aggregations';
+import {EddigtionChart, MovingSum, TotalAggregation} from '../aggregations';
 import {AggregationsService} from "../aggregations.service";
 import {FormsModule} from "@angular/forms";
 import {MatCardModule} from '@angular/material/card';
@@ -9,6 +9,8 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {BaseChartDirective} from "ng2-charts";
 import {
+    BarController,
+    BarElement,
     CategoryScale,
     Chart,
     ChartConfiguration,
@@ -21,7 +23,7 @@ import {
 } from "chart.js";
 import {forkJoin} from "rxjs";
 
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController, Tooltip);
+Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController, BarController, BarElement, Tooltip);
 
 @Component({
     templateUrl: './aggregations.component.html',
@@ -42,6 +44,7 @@ export class AggregationsComponent {
     aggregationService: AggregationsService = inject(AggregationsService);
     isYTD = false;
     movingSumNumDays = 365;
+    eddigtionChart: EddigtionChart | null = null;
 
     movingSumChartData: ChartConfiguration<'line'>['data'] = {
         labels: [],
@@ -94,6 +97,53 @@ export class AggregationsComponent {
         }
     };
 
+    eddingtonChartData: ChartConfiguration<'bar'>['data'] = {
+        labels: [],
+        datasets: []
+    };
+
+    eddingtonChartOptions: ChartConfiguration<'bar'>['options'] = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    title: (items) => items.length > 0 ? `>= ${items[0].label} km` : '',
+                    label: (item) => {
+                        const idx = (item as any).dataIndex;
+                        const orig = this.eddigtionChart?.countsPerKM?.[idx];
+                        return orig !== undefined ? `${orig} activities` : `${item.parsed.y} activities`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Distance threshold (km)'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of activities'
+                },
+                ticks: {
+                    callback: (value) => {
+                        const v = Number(value);
+                        const original = Math.round(Math.pow(v, 2));
+                        return String(original);
+                    }
+                }
+            }
+        }
+    };
+
     constructor() {
         this.refresh();
     }
@@ -101,10 +151,13 @@ export class AggregationsComponent {
     refresh() {
         forkJoin({
             totalAggregation: this.aggregationService.getAll('', this.isYTD),
-            movingSum: this.aggregationService.getMovingSum(this.movingSumNumDays)
-        }).subscribe(({totalAggregation, movingSum}) => {
+            movingSum: this.aggregationService.getMovingSum(this.movingSumNumDays),
+            eddingtonChart: this.aggregationService.getEddingtonChart()
+        }).subscribe(({totalAggregation, movingSum, eddingtonChart}) => {
             this.totalAggregation = totalAggregation;
             this.updateMovingSumChart(movingSum);
+            this.eddigtionChart = eddingtonChart;
+            this.updateEddingtonChart(eddingtonChart);
         });
     }
 
@@ -166,5 +219,43 @@ export class AggregationsComponent {
 
     private isYearStartLabel(label: string): boolean {
         return /^\d{4}-01-01$/.test(label);
+    }
+
+    private updateEddingtonChart(eddingtonChart: EddigtionChart): void {
+        const labels = eddingtonChart.countsPerKM.map((_count, index) => String(index));
+        // transform values with sqrt to reduce dynamic range while preserving order
+        const transformed = eddingtonChart.countsPerKM.map(c => Math.sqrt(c));
+        const maxOriginal = eddingtonChart.countsPerKM.length > 0 ? Math.max(...eddingtonChart.countsPerKM) : 1;
+        const maxTransformed = Math.sqrt(Math.max(maxOriginal, 1));
+
+        this.eddingtonChartData = {
+            labels,
+            datasets: [
+                {
+                    data: transformed,
+                    backgroundColor: labels.map((label) =>
+                        Number(label) === eddingtonChart.eddigtionNumber
+                            ? 'rgba(255, 152, 0, 0.85)'
+                            : 'rgba(30, 136, 229, 0.75)'
+                    ),
+                    borderColor: labels.map((label) =>
+                        Number(label) === eddingtonChart.eddigtionNumber
+                            ? 'rgba(255, 152, 0, 1)'
+                            : 'rgba(30, 136, 229, 1)'
+                    ),
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        // adjust y axis maximum so small values remain visible relative to max
+        try {
+            const scales: any = (this.eddingtonChartOptions as any).scales || {};
+            scales.y = scales.y || {};
+            scales.y.max = maxTransformed;
+            (this.eddingtonChartOptions as any).scales = scales;
+        } catch (e) {
+            // ignore if mutation not allowed
+        }
     }
 }

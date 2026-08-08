@@ -1,6 +1,7 @@
 package net.privactivity.store.service;
 
 import net.privactivity.store.adapter.ActivityRepository;
+import net.privactivity.store.usecase.eddingtion.ComputeEddingtonChartUseCase;
 import net.privactivity.store.usecase.getaggregation.AggregatorUseCase;
 import net.privactivity.store.usecase.getaggregation.model.TotalAggregation;
 import net.privactivity.store.usecase.movingsum.ComputeMovingSumUseCase;
@@ -41,5 +42,10 @@ public class AggregatorService {
         ComputeMovingSumUseCase computeMovingSumUseCase = new ComputeMovingSumUseCase(activityRepository,
                                                                                       LocalDate.now());
         return computeMovingSumUseCase.compute(numDays);
+    }
+
+    public ComputeEddingtonChartUseCase.EddigtionChart eddingtionChart() {
+        ComputeEddingtonChartUseCase testee = new ComputeEddingtonChartUseCase(activityRepository);
+        return testee.act();
     }
 }

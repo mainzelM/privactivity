@@ -1,4 +1,5 @@
 import {AuthTokenWorkerService} from './auth-token-worker.service';
+import {environment} from '../../environments/environment';
 
 class MessagePortStub {
     onmessage: ((event: MessageEvent) => void) | null = null;
@@ -13,6 +14,7 @@ class SharedWorkerStub {
 
 describe('AuthTokenWorkerService', () => {
     const originalSharedWorker = globalThis.SharedWorker;
+    const originalUseSharedAuthTokenWorker = environment.useSharedAuthTokenWorker;
 
     let port: MessagePortStub;
     let sharedWorkerCtorSpy: jasmine.Spy;
@@ -29,6 +31,9 @@ describe('AuthTokenWorkerService', () => {
             writable: true,
             value: sharedWorkerCtorSpy
         });
+        localStorage.removeItem('auth.token');
+        localStorage.removeItem('auth.roles');
+        environment.useSharedAuthTokenWorker = true;
     });
 
     afterEach(() => {
@@ -37,6 +42,9 @@ describe('AuthTokenWorkerService', () => {
             writable: true,
             value: originalSharedWorker
         });
+        environment.useSharedAuthTokenWorker = originalUseSharedAuthTokenWorker;
+        localStorage.removeItem('auth.token');
+        localStorage.removeItem('auth.roles');
     });
 
     it('should publish local auth updates immediately', () => {
@@ -88,5 +96,24 @@ describe('AuthTokenWorkerService', () => {
 
         expect(latestToken).toBe('worker-token');
         expect(latestRoles).toBe('ROLE_ADMIN');
+    });
+
+    it('should persist auth state in local storage when worker backend is disabled', () => {
+        environment.useSharedAuthTokenWorker = false;
+
+        const testee = new AuthTokenWorkerService();
+        testee.setToken('dev-token');
+        testee.setRoles('ROLE_DEV');
+
+        const secondInstance = new AuthTokenWorkerService();
+        let latestToken: string | null | undefined;
+        let latestRoles: string | null | undefined;
+
+        secondInstance.token$.subscribe(token => latestToken = token);
+        secondInstance.roles$.subscribe(roles => latestRoles = roles);
+
+        expect(sharedWorkerCtorSpy).not.toHaveBeenCalled();
+        expect(latestToken).toBe('dev-token');
+        expect(latestRoles).toBe('ROLE_DEV');
     });
 });

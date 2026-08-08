@@ -15,3 +15,8 @@ export interface TotalAggregation {
 }
 
 export type MovingSum = { [date: string]: number };
+
+export interface EddigtionChart {
+    countsPerKM: number[];
+    eddigtionNumber: number;
+}
