@@ -25,25 +25,23 @@ public class AggregationsResource {
 
     @GetMapping("")
     TotalAggregationDTO getAll(@RequestParam(value = "months", defaultValue = "") String monthsAsString) {
-        int eddingtonNumber = aggregatorService.eddingtonNumber();
         if (monthsAsString.isEmpty()) {
             TotalAggregation totalAggregation = aggregatorService.getTotalAggregation();
-            return new TotalAggregationDTO(totalAggregation, eddingtonNumber);
+            return new TotalAggregationDTO(totalAggregation);
         } else {
             int[] monthArray = Arrays.stream(monthsAsString.split(","))
                                      .mapToInt(Integer::parseInt)
                                      .toArray();
             TotalAggregation totalAggregation =
                     aggregatorService.aggregateForMonths(monthArray);
-            return new TotalAggregationDTO(totalAggregation, eddingtonNumber);
+            return new TotalAggregationDTO(totalAggregation);
         }
     }
 
     @GetMapping("ytd")
     TotalAggregationDTO getYTD() {
         TotalAggregation totalAggregation = aggregatorService.aggregateYTD();
-        int eddingtonNumber = aggregatorService.eddingtonNumber();
-        return new TotalAggregationDTO(totalAggregation, eddingtonNumber);
+        return new TotalAggregationDTO(totalAggregation);
     }
 
     @GetMapping("moving-sum")

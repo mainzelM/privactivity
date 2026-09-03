@@ -8,6 +8,7 @@ import {authGuard} from "./auth/auth-guard.service";
 import {LogoutComponent} from "./logout/logout.component";
 import {AdminComponent} from "./admin/admin.component";
 import {TilesComponent} from "./tiles/tiles.component";
+import {MountainPassesComponent} from "./mountain-passes/mountain-passes.component";
 
 const routeConfig: Routes = [
     {
@@ -43,6 +44,13 @@ const routeConfig: Routes = [
         path: 'tiles',
         component: TilesComponent,
         title: 'Tiles',
+        canActivate: [authGuard],
+        data: {role: 'ROLE_USER'}
+    },
+    {
+        path: 'mountain-passes',
+        component: MountainPassesComponent,
+        title: 'Crossed Mountain Passes',
         canActivate: [authGuard],
         data: {role: 'ROLE_USER'}
     },

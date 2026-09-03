@@ -10,7 +10,7 @@ import java.util.NavigableMap;
 public record YearlyAggregationDTO(Map<Integer, AggregationDTO> months, AggregationDTO totals) {
 
     YearlyAggregationDTO(YearlyAggregation yearlyAggregation) {
-        this(toMap(yearlyAggregation.byMonth()), new AggregationDTO(yearlyAggregation, 0));
+        this(toMap(yearlyAggregation.byMonth()), new AggregationDTO(yearlyAggregation));
     }
 
     private static Map<Integer, AggregationDTO> toMap(NavigableMap<Month,
@@ -18,7 +18,7 @@ public record YearlyAggregationDTO(Map<Integer, AggregationDTO> months, Aggregat
         Map<Integer, AggregationDTO> result = new HashMap<>();
         monthMonthlyAggregationNavigableMap.forEach((month, monthlyAggregation) ->
                                                             result.put(month.month(),
-                                                                       new AggregationDTO(monthlyAggregation, 0)));
+                                                                       new AggregationDTO(monthlyAggregation)));
         return result;
     }
 }

@@ -14,12 +14,10 @@ public class AggregatorUseCase {
 
     private final ActivityAggregatorDomainService aggregator;
     private final ActivityRepository activityRepository;
-    private final EddingtonNumberCalculator eddingtonNumberCalculator;
 
     public AggregatorUseCase(ActivityRepository activityRepository) {
         this.activityRepository = activityRepository;
         aggregator = new ActivityAggregatorDomainService();
-        eddingtonNumberCalculator = new EddingtonNumberCalculator();
     }
 
     public TotalAggregation aggregate() {
@@ -42,10 +40,5 @@ public class AggregatorUseCase {
         TotalAggregation aggregate = aggregator.aggregateFiltered(activities, upToNow);
         AggregationFilter filter = new AggregationFilter();
         return filter.filterByMonths(aggregate, months);
-    }
-
-    public int eddingtonNumber() {
-        List<Activity> activities = activityRepository.getAll(false);
-        return eddingtonNumberCalculator.calculate(activities);
     }
 }

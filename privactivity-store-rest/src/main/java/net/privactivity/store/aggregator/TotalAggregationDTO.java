@@ -7,8 +7,8 @@ import java.util.Map;
 record TotalAggregationDTO(Map<Integer, YearlyAggregationDTO> years, AggregationDTO totals) {
 
 
-    TotalAggregationDTO(TotalAggregation totalAggregation, int eddingtonNumber) {
-        this(toMap(totalAggregation), new AggregationDTO(totalAggregation, eddingtonNumber));
+    TotalAggregationDTO(TotalAggregation totalAggregation) {
+        this(toMap(totalAggregation), new AggregationDTO(totalAggregation));
     }
 
     private static Map<Integer, YearlyAggregationDTO> toMap(TotalAggregation totalAggregation) {

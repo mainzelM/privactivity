@@ -28,11 +28,6 @@ public class AggregatorService {
         return aggregatorUseCase.aggregateForMonths(monthArray);
     }
 
-    public int eddingtonNumber() {
-        AggregatorUseCase aggregatorUseCase = new AggregatorUseCase(activityRepository);
-        return aggregatorUseCase.eddingtonNumber();
-    }
-
     public TotalAggregation aggregateYTD() {
         AggregatorUseCase aggregatorUseCase = new AggregatorUseCase(activityRepository);
         return aggregatorUseCase.aggregateYTD();

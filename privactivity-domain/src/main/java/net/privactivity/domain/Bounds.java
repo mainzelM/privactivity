@@ -19,6 +19,11 @@ public record Bounds(LatLon southernmostLatLon, LatLon northernmostLatLon, LatLo
                westernmostLatLon.lon() <= other.easternmostLatLon.lon() && easternmostLatLon.lon() >= other.westernmostLatLon.lon();
     }
 
+    public boolean contains(LatLon latLon) {
+        return latLon.lat() >= south() && latLon.lat() <= north() &&
+               latLon.lon() >= west() && latLon.lon() <= east();
+    }
+
     public static Bounds ofWaypoints(List<Waypoint> waypoints) {
         return ofLatLons(waypoints.stream()
                                   .map(Waypoint::latlon)

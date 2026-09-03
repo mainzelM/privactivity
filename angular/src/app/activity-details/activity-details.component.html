@@ -207,6 +207,30 @@
                 </div>
             </mat-card-content>
         </mat-card>
+        <mat-card class="passes-card">
+            <mat-card-header>
+                <mat-card-title>
+                    <mat-icon>terrain</mat-icon>
+                    Mountain Passes Crossed
+                </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                @if (crossedPasses === undefined) {
+                    <span class="pass-list">Loading...</span>
+                } @else if (crossedPasses.length === 0) {
+                    <span class="pass-list">No mountain passes crossed.</span>
+                } @else {
+                    <ul class="pass-list-items">
+                        @for (pass of crossedPasses; track pass.name) {
+                            <li>
+                                <mat-icon class="pass-icon">landscape</mat-icon>
+                                {{ pass.name }} ({{ pass.country }})
+                            </li>
+                        }
+                    </ul>
+                }
+            </mat-card-content>
+        </mat-card>
         <div class="export-section">
             <button mat-raised-button color="primary" (click)="exportAsCsv()">
                 <mat-icon>download</mat-icon>

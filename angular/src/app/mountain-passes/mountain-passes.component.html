@@ -1,0 +1,78 @@
+<section class="passes-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>terrain</mat-icon>
+        Crossed Mountain Passes
+      </mat-card-title>
+      <mat-card-subtitle>
+        An overview of all mountain passes found in your activities
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <mat-card class="content-card">
+    <mat-card-header>
+      <mat-card-title>Pass Crossings</mat-card-title>
+      <div class="header-actions">
+        <button mat-stroked-button type="button" (click)="reload()" [disabled]="loading">Reload</button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      @if (loading && !response) {
+        <div class="state">
+          <mat-spinner diameter="48"></mat-spinner>
+        </div>
+      }
+
+      @if (!loading && errorMessage) {
+        <div class="state">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ errorMessage }}</p>
+        </div>
+      }
+
+      @if (!loading && !errorMessage && response && response.passCrossings.length === 0) {
+        <div class="state">
+          <mat-icon>terrain</mat-icon>
+          <p>No crossed mountain passes found yet.</p>
+        </div>
+      }
+
+      @if (response && response.passCrossings.length > 0) {
+        <div class="summary">
+          <mat-icon>flag</mat-icon>
+          <strong>{{ crossingsCount() }}</strong>
+          <span>crossed passes</span>
+        </div>
+        <div class="passes-grid">
+          @for (crossing of response.passCrossings; track crossing.passName + crossing.passCountry) {
+            <mat-card class="pass-card">
+              <mat-card-header>
+                <mat-icon mat-card-avatar>terrain</mat-icon>
+                <mat-card-title>{{ crossing.passName }}</mat-card-title>
+                <mat-card-subtitle>{{ crossing.passCountry }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="pass-detail">
+                  <span>First crossing</span>
+                  <a [routerLink]="['/activity-details', crossing.firstCrossingActivityId]">
+                    Activity {{ crossing.firstCrossingActivityId }}
+                  </a>
+                  <span class="pass-detail-date">{{ crossing.firstCrossingDate | date:'dd.MM.yyyy' }}</span>
+                </div>
+                <div class="pass-detail">
+                  <span>Latest crossing</span>
+                  <a [routerLink]="['/activity-details', crossing.lastCrossingActivityId]">
+                    Activity {{ crossing.lastCrossingActivityId }}
+                  </a>
+                  <span class="pass-detail-date">{{ crossing.lastCrossingDate | date:'dd.MM.yyyy' }}</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>

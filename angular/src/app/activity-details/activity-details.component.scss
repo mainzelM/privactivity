@@ -167,6 +167,47 @@
   margin-top: 20px;
 }
 
+.passes-card {
+  background: var(--mat-sys-surface-variant);
+
+  .mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--mat-sys-on-surface-variant);
+
+    .mat-icon {
+      color: var(--mat-sys-primary);
+    }
+  }
+}
+
+.pass-list {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.pass-list-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .pass-icon {
+    color: var(--mat-sys-primary);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .activity-details-container {
     padding: 10px;

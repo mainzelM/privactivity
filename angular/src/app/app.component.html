@@ -30,6 +30,14 @@
           </button>
         </header>
       }
+      @if (loggedIn()) {
+        <header class="brand-name">
+          <button mat-icon-button [routerLink]="['/mountain-passes']" matTooltip="Crossed mountain passes"
+            class="admin-nav-button">
+            <mat-icon class="admin-nav-icon">terrain</mat-icon>
+          </button>
+        </header>
+      }
       @if (adminAccess()) {
         <header class="brand-name">
           <button mat-icon-button [routerLink]="['/admin']" matTooltip="Administration" class="admin-nav-button">

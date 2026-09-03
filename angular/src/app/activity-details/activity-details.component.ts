@@ -4,6 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {Activity, Waypoint} from '../activity';
 import {ActivitiesService, CsvExportConfigRequest} from '../activities.service';
 import {TownFinderService} from "../town-finder.service";
+import {MountainPass, MountainPassService} from "../mountain-pass.service";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from '@angular/forms';
 import {LeafletModule} from '@bluehalo/ngx-leaflet';
@@ -47,6 +48,7 @@ export class ActivityDetailsComponent implements OnInit {
     towns: string[] | undefined;
     boundsTowns: string[] | undefined;
     cornerTowns: string[] | undefined;
+    crossedPasses: MountainPass[] | undefined;
     isEditingTitle = false;
     isSavingTitle = false;
     editedTitle = '';
@@ -128,7 +130,8 @@ export class ActivityDetailsComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private activitiesService: ActivitiesService,
-        private townFinderService: TownFinderService
+        private townFinderService: TownFinderService,
+        private mountainPassService: MountainPassService
     ) {
     }
 
@@ -249,6 +252,10 @@ export class ActivityDetailsComponent implements OnInit {
         this.townFinderService.getTownsOfActivityCorners(id).subscribe((towns: string[]) => {
             console.log('Corner towns:', towns);
             this.cornerTowns = towns;
+        });
+
+        this.mountainPassService.getCrossedPasses(id).subscribe((crossedPasses) => {
+            this.crossedPasses = crossedPasses.crossedPasses;
         });
 
         this.activitiesService.getGeoJSON(id).subscribe((geojson: any) => {
