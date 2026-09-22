@@ -13,6 +13,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
+    testImplementation testFixtures(project(':fit-decoder-adapter'))
 
     testFixturesImplementation project(':privactivity-domain')
 }

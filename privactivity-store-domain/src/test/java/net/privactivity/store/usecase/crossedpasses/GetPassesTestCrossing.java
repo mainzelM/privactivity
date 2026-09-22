@@ -9,6 +9,7 @@ import net.privactivity.store.model.MapBasedActivityRepository;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ class GetPassesTestCrossing {
         Activity activity = Activity.builder()
                                     .id(ACTIVITY_ID)
                                     .title("test")
+                                    .start(ZonedDateTime.now())
                                     .waypoints(List.of(
                                             waypoint(0, 47.1000, 11.1000),
                                             waypointWithoutLocation(60),
@@ -49,6 +51,7 @@ class GetPassesTestCrossing {
         Activity activity = Activity.builder()
                                     .id(ACTIVITY_ID)
                                     .title("test")
+                                    .start(ZonedDateTime.now())
                                     .waypoints(List.of(
                                             // ~38m away from "Reference Pass" -> should match it
                                             waypoint(0, 47.1000, 11.1005),

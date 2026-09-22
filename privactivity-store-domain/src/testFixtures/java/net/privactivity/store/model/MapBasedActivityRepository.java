@@ -3,6 +3,7 @@ package net.privactivity.store.model;
 import net.privactivity.domain.Activity;
 import net.privactivity.store.adapter.ActivityRepository;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class MapBasedActivityRepository implements ActivityRepository {
     private final Map<Long, Activity> activityMap;
 
     public MapBasedActivityRepository(Map<Long, Activity> activityMap) {
-        this.activityMap = activityMap;
+        this.activityMap = new HashMap<>(activityMap);
     }
 
     @Override
@@ -22,7 +23,8 @@ public class MapBasedActivityRepository implements ActivityRepository {
 
     @Override
     public long addActivity(Activity activity) {
-        throw new UnsupportedOperationException();
+        activityMap.put(activity.id(), activity);
+        return activity.id();
     }
 
     @Override
@@ -32,17 +34,18 @@ public class MapBasedActivityRepository implements ActivityRepository {
 
     @Override
     public long updateActivity(Activity activity, boolean updateWaypoints) {
-        throw new UnsupportedOperationException();
+        activityMap.put(activity.id(), activity);
+        return activity.id();
     }
 
     @Override
     public void removeAll() {
-        throw new UnsupportedOperationException();
+        activityMap.clear();
     }
 
     @Override
     public void gc() {
-        throw new UnsupportedOperationException();
+        // No resources need to be reclaimed by the in-memory repository.
     }
 
     @Override

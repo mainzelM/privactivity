@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public record Activity(long id,
                        String title,
@@ -15,6 +16,18 @@ public record Activity(long id,
                        List<ClimbPointer> climbPointers,
                        Bounds bounds,
                        Summary summary) {
+    public Activity {
+        Objects.requireNonNull(title, "title must not be null");
+        Objects.requireNonNull(start, "start must not be null");
+        Objects.requireNonNull(waypoints, "waypoints must not be null");
+        Objects.requireNonNull(totals, "totals must not be null");
+        Objects.requireNonNull(averages, "averages must not be null");
+        Objects.requireNonNull(maxima, "maxima must not be null");
+        Objects.requireNonNull(climbPointers, "climbPointers must not be null");
+        Objects.requireNonNull(bounds, "bounds must not be null");
+        Objects.requireNonNull(summary, "summary must not be null");
+    }
+
     public Activity(long id, String title, ZonedDateTime start, List<Waypoint> waypoints, Totals totals,
                     Averages averages, Maxima maxima, List<ClimbPointer> climbPointers, Bounds bounds) {
         this(id, title, start, waypoints, totals, averages, maxima, climbPointers, bounds, new Summary());
@@ -26,30 +39,37 @@ public record Activity(long id,
     }
 
     public Activity withTitle(String newTitle) {
+        Objects.requireNonNull(newTitle, "newTitle must not be null");
         return new Activity(id, newTitle, start, waypoints, totals, averages, maxima, climbPointers, bounds, summary);
     }
 
     public Activity withTotals(Totals newTotals) {
+        Objects.requireNonNull(newTotals, "newTotals must not be null");
         return new Activity(id, title, start, waypoints, newTotals, averages, maxima, climbPointers, bounds, summary);
     }
 
     public Activity withMaxima(Maxima newMaxima) {
+        Objects.requireNonNull(newMaxima, "newMaxima must not be null");
         return new Activity(id, title, start, waypoints, totals, averages, newMaxima, climbPointers, bounds, summary);
     }
 
     public Activity withAverages(Averages averages) {
+        Objects.requireNonNull(averages, "averages must not be null");
         return new Activity(id, title, start, waypoints, totals, averages, maxima, climbPointers, bounds, summary);
     }
 
     public Activity withClimbs(List<ClimbPointer> newClimbPointers) {
+        Objects.requireNonNull(newClimbPointers, "newClimbPointers must not be null");
         return new Activity(id, title, start, waypoints, totals, averages, maxima, newClimbPointers, bounds, summary);
     }
 
     public Activity withWaypoints(List<Waypoint> newWaypoints) {
+        Objects.requireNonNull(newWaypoints, "newWaypoints must not be null");
         return new Activity(id, title, start, newWaypoints, totals, averages, maxima, climbPointers, bounds, summary);
     }
 
     public Activity withSummary(Summary newSummary) {
+        Objects.requireNonNull(newSummary, "newSummary must not be null");
         return new Activity(id, title, start, waypoints, totals, averages, maxima, climbPointers, bounds, newSummary);
     }
 

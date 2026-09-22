@@ -112,15 +112,21 @@ public class FindActivitiesUseCase {
             MetaData md = metaData.orThrow();
             if (md.manualTitle().isPresent()) {
                 return activity.withTitle(md.manualTitle().orThrow());
-            } else if (activity.title().contains("Rennradfahren")) {
-                List<String> towns = townsForTitle(activity);
-                if (towns.isEmpty()) {
-                    return activity;
-                } else {
-                    return activity.withTitle(String.join(", ", towns));
-                }
             } else {
+                return automaticTitle(activity);
+            }
+        } else {
+            return automaticTitle(activity);
+        }
+    }
+
+    private Activity automaticTitle(Activity activity) {
+        if (activity.title().contains("Rennradfahren") || activity.title().isEmpty()) {
+            List<String> towns = townsForTitle(activity);
+            if (towns.isEmpty()) {
                 return activity;
+            } else {
+                return activity.withTitle(String.join(", ", towns));
             }
         } else {
             return activity;

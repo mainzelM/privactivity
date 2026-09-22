@@ -9,9 +9,15 @@ import net.privactivity.store.usecase.importactivities.adapter.GpxImporter;
 import net.privactivity.store.usecase.importactivities.adapter.TcxImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -34,6 +40,8 @@ public class ImportActivitiesUseCase {
     private static final Logger logger = LoggerFactory.getLogger(ImportActivitiesUseCase.class);
     private final String ID_REGEXP = "(\\d+)_\\w+\\.\\w+";
     private final Pattern ID_PATTERN = Pattern.compile(ID_REGEXP);
+    private static final DateTimeFormatter FIT_FILENAME_TIMESTAMP_FORMAT =
+            DateTimeFormatter.ofPattern("uuuu-MM-dd-HH-mm-ss");
 
 
     public ImportActivitiesUseCase(ActivityRepository activityRepository, FitDecoder fitDecoder,
@@ -47,22 +55,34 @@ public class ImportActivitiesUseCase {
     }
 
     public void importDirectory(Path dir, boolean removeAllBeforeImport) {
-        List<GarminActivity> activities = activitiesJsonReader.read(dir);
         try {
             if (removeAllBeforeImport) {
                 removeAll();
             }
-            try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(".zip"))) {
-                stream.map(this::importZip)
-                      .filter(Optional::isPresent)
-                      .map(Optional::get)
-                      .forEach(id -> addTitleFromActivitiesJson(id, activities));
-            }
+            importZipFiles(dir);
+            importPlainFitFiles(dir);
             activityRepository.gc();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+    private void importPlainFitFiles(Path dir) throws IOException {
+        try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(".fit"))) {
+            stream.forEach(this::importFitFile);
+        }
+    }
+
+    private void importZipFiles(Path dir) throws IOException {
+        List<GarminActivity> activities = activitiesJsonReader.read(dir);
+        try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(".zip"))) {
+            stream.map(this::importZip)
+                  .filter(Optional::isPresent)
+                  .map(Optional::get)
+                  .forEach(id -> addTitleFromActivitiesJson(id, activities));
+        }
+    }
+
 
     private void addTitleFromActivitiesJson(long id, List<GarminActivity> jsonActivities) {
         if (id < 0) {
@@ -143,10 +163,30 @@ public class ImportActivitiesUseCase {
         }
     }
 
+    public void importFitFile(Path path) {
+        try (FileInputStream fis = new FileInputStream(path.toFile())) {
+            long id = parseFilenameAsId(path.getFileName().toString());
+            if (!activityRepository.containsActivityId(id)) {
+                Activity activity = fitDecoder.extractFit(fis, id);
+                activityRepository.addActivity(activity);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private long parseFilenameAsId(String fitFile) {
+        String timestamp = fitFile.endsWith(".fit") ? fitFile.substring(0, fitFile.length() - 4) : fitFile;
+        return LocalDateTime.parse(timestamp, FIT_FILENAME_TIMESTAMP_FORMAT)
+                            .atZone(ZoneId.systemDefault())
+                            .toInstant()
+                            .toEpochMilli();
+    }
+
 
     public Optional<Activity> decodeZip(Path fileZip, Predicate<Long> skipId) throws IOException {
-        try (var zf = new ZipFile(fileZip.toFile())) {
-            var entries = zf.entries();
+        try (ZipFile zf = new ZipFile(fileZip.toFile())) {
+            Enumeration<? extends ZipEntry> entries = zf.entries();
             if (!entries.hasMoreElements()) {
                 throw new ZipException("No entry in zip " + fileZip);
             }
@@ -163,7 +203,7 @@ public class ImportActivitiesUseCase {
     }
 
     private Activity asActivity(ZipFile zf, ZipEntry zipEntry, String name, long id) throws IOException {
-        try (var is = zf.getInputStream(zipEntry)) {
+        try (InputStream is = zf.getInputStream(zipEntry)) {
             if (name.endsWith(".fit")) {
                 return fitDecoder.extractFit(is, id);
             } else if (name.endsWith(".gpx")) {

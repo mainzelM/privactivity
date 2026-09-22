@@ -24,8 +24,6 @@ import net.privactivity.fit.domain.TrainingData;
 import net.privactivity.store.usecase.importactivities.adapter.FitDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,31 +38,15 @@ public class FitDecoderImpl implements FitDecoder {
 
 
     @Override
-    public Activity extractFit(InputStream is, long id) throws IOException {
-        var trainingData = readTrainingData(is);
+    public Activity extractFit(InputStream is, long id) {
+        TrainingData trainingData = readTrainingData(is);
         trainingData.setId(id);
         FitToPrivactivity fitToPrivactivity = new FitToPrivactivity();
         return fitToPrivactivity.convert(trainingData);
     }
 
-    public TrainingData decode(String fitFile) {
-        checkFileIntegrity(fitFile, new Decode());
-
-        try (InputStream in = new FileInputStream(fitFile)) {
-            TrainingData trainingData = readTrainingData(in);
-
-            log.debug("Decoded FIT file '{}'", fitFile);
-
-            return trainingData;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private TrainingData readTrainingData(InputStream in) {
+    TrainingData readTrainingData(InputStream in) {
         TrainingData trainingData = new TrainingData(); //read garmin data
-        trainingData.setTitle("title");
-        trainingData.setDescription("description");
 
         Decode decode = new Decode();
         //decode.skipHeader();        // Use on streams with no header and footer (stream contains FIT defn and data
@@ -75,8 +57,6 @@ public class FitDecoderImpl implements FitDecoder {
 
 
         mesgBroadcaster.addListener((FileIdMesgListener) listener);
-        // mesgBroadcaster.addListener((UserProfileMesgListener)listener);
-        //  mesgBroadcaster.addListener((DeviceInfoMesgListener)listener);
         mesgBroadcaster.addListener((RecordMesgListener) listener);
         mesgBroadcaster.addListener((LapMesgListener) listener);
         mesgBroadcaster.addListener((SessionMesgListener) listener);
@@ -84,7 +64,7 @@ public class FitDecoderImpl implements FitDecoder {
         try {
             decode.read(in, mesgBroadcaster, mesgBroadcaster);
         } catch (FitRuntimeException e) {
-            // If a file with 0 data size in it's header  has been encountered,
+            // If a file with 0 data size in its header  has been encountered,
             // attempt to keep processing the file
             if (decode.getInvalidFileDataSize()) {
                 decode.nextFile();
@@ -95,16 +75,6 @@ public class FitDecoderImpl implements FitDecoder {
         }
         listener.assignLapNumbersToRecords();
         return trainingData;
-    }
-
-    private void checkFileIntegrity(String file, Decode decode) {
-        try (InputStream in = new FileInputStream(file)) {
-            if (!decode.checkFileIntegrity(in)) {
-                throw new RuntimeException("FIT file integrity failed.");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static class Listener implements SessionMesgListener, RecordMesgListener, FileIdMesgListener,
@@ -297,14 +267,7 @@ public class FitDecoderImpl implements FitDecoder {
         }
     }
 
-    private static class LapBoundary {
-        private final Integer lapNumber;
-        private final Date startTime;
-
-        private LapBoundary(Integer lapNumber, Date startTime) {
-            this.lapNumber = lapNumber;
-            this.startTime = startTime;
-        }
+    private record LapBoundary(Integer lapNumber, Date startTime) {
     }
 
 }

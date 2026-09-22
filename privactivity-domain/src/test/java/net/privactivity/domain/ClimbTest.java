@@ -1,6 +1,7 @@
 package net.privactivity.domain;
 
 import org.junit.jupiter.api.Test;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -25,7 +26,7 @@ class ClimbTest {
                                     Maybe.none(), Maybe.some(wp3Start), 1);
         Waypoint wp4 = new Waypoint(4, Maybe.some(ll4), Maybe.none(), Maybe.none(), Maybe.none(), Maybe.none(),
                                     Maybe.none(), Maybe.some(13), 1);
-        Activity a = new Activity(1, "", null, List.of(wp1, wp2, wp3, wp4), null)
+        Activity a = new Activity(1, "", ZonedDateTime.now(), List.of(wp1, wp2, wp3, wp4), java.time.Duration.ZERO)
                 .withClimbs(List.of(new ClimbPointer(wp2Start, wp3Start, 0, 0,
                                                      Bounds.ofLatLons(List.of(ll2, ll3)))));
 

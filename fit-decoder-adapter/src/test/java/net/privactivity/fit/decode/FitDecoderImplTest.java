@@ -3,7 +3,9 @@ package net.privactivity.fit.decode;
 import net.privactivity.fit.domain.Record;
 import net.privactivity.fit.domain.TrainingData;
 import org.junit.jupiter.api.Test;
+import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -15,11 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FitDecoderImplTest {
 
     @Test
-    void testDecodeActivityFixture() throws URISyntaxException {
+    void testDcodeActivityFixture() throws URISyntaxException, IOException {
         FitDecoderImpl testee = new FitDecoderImpl();
         Path fitFilePath = Path.of(Objects.requireNonNull(getClass().getResource("/Activity.fit")).toURI());
 
-        TrainingData trainingData = testee.decode(fitFilePath.toString());
+        TrainingData trainingData = testee.readTrainingData(Files.newInputStream(fitFilePath));
 
         List<Record> records = trainingData.getRecords();
         Record firstRecord = records.getFirst();

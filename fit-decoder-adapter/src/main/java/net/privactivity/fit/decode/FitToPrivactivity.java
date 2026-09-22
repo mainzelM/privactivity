@@ -38,7 +38,7 @@ public class FitToPrivactivity {
         if (gs == null) {
             return Activity.builder()
                            .id(td.getId())
-                           .title(td.getTitle())
+                           .title(titleOrEmpty(td))
                            .start(start)
                            .waypoints(waypoints)
                            .totals(new Activity.Totals(Duration.ZERO))
@@ -51,7 +51,7 @@ public class FitToPrivactivity {
             Bounds bounds = Bounds.ofWaypoints(waypoints);
             return Activity.builder()
                            .id(td.getId())
-                           .title(td.getTitle())
+                           .title(titleOrEmpty(td))
                            .start(start)
                            .waypoints(waypoints)
                            .totals(totals)
@@ -69,6 +69,10 @@ public class FitToPrivactivity {
         return td.getRecords().stream()
                  .map(r -> convertRecord(r, startInstant))
                  .collect(Collectors.toList());
+    }
+
+    private String titleOrEmpty(TrainingData trainingData) {
+        return trainingData.getTitle() == null ? "" : trainingData.getTitle();
     }
 
     private static Instant getInstant(TrainingData td) {

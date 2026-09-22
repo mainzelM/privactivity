@@ -7,6 +7,7 @@ import net.privactivity.domain.Waypoint;
 import net.privactivity.store.model.MapBasedActivityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +135,8 @@ class ClimbDetectorUseCaseTest {
      * Creates a testee backed by an activity with the given altitude profile.
      */
     private ClimbDetectorUseCase testeeWith(int... altitudes) {
-        Activity activity = new Activity(ACTIVITY_ID, "test", null, wps(altitudes), java.time.Duration.ZERO);
+        Activity activity = new Activity(ACTIVITY_ID, "test", ZonedDateTime.now(), wps(altitudes),
+                                         java.time.Duration.ZERO);
         return new ClimbDetectorUseCase(new MapBasedActivityRepository(Map.of(ACTIVITY_ID, activity)), 100, 20);
     }
 

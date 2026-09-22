@@ -2,14 +2,12 @@ package net.privactivity.fit.decode;
 
 import net.privactivity.domain.Activity;
 import net.privactivity.domain.Waypoint;
+import net.privactivity.fit.domain.GarminSession;
 import net.privactivity.fit.domain.Record;
 import net.privactivity.fit.domain.TrainingData;
 import org.junit.jupiter.api.Test;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 
 
@@ -18,23 +16,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FitToPrivactivityTest {
 
     @Test
-    void testConvertActivityFixture() throws URISyntaxException {
-        FitDecoderImpl decoder = new FitDecoderImpl();
-        Path fitFilePath = Path.of(Objects.requireNonNull(getClass().getResource("/Activity.fit")).toURI());
-        TrainingData trainingData = decoder.decode(fitFilePath.toString());
+    void testConvertActivityFixture() {
+        Date start = new Date(1_700_000_000_000L);
+        TrainingData trainingData = new TrainingData();
         trainingData.setId(23L);
+        trainingData.setTitle("Test activity");
+        trainingData.setDate(start);
+        trainingData.addRecord(recordAt(start, (short) 0, 0.0, 127.0));
+        trainingData.addRecord(recordAt(new Date(start.getTime() + 3_600_000L), (short) 30, 3600.0, 97.0));
+        GarminSession garminSession = new GarminSession();
+        garminSession.setTotalMovingTime(30.0);
+        trainingData.setGarminSession(garminSession);
 
         FitToPrivactivity testee = new FitToPrivactivity();
         Activity activity = testee.convert(trainingData);
 
-        List<Waypoint> waypoints = activity.waypoints();
-        Waypoint firstWaypoint = waypoints.getFirst();
-        Waypoint lastWaypoint = waypoints.getLast();
+        Waypoint firstWaypoint = activity.waypoints().getFirst();
+        Waypoint lastWaypoint = activity.waypoints().getLast();
 
         assertThat(activity.id()).isEqualTo(23L);
-        assertThat(activity.title()).isEqualTo("title");
         assertThat(activity.start().toInstant()).isEqualTo(trainingData.getDate().toInstant());
-        assertThat(waypoints).hasSize(3601);
+        assertThat(activity.waypoints()).hasSize(2);
 
         assertThat(firstWaypoint.secondsSinceStart()).isEqualTo(0);
         assertThat(firstWaypoint.speedInMeterPerHour().orThrow()).isEqualTo(3600);
@@ -54,7 +56,20 @@ class FitToPrivactivityTest {
         assertThat(lastWaypoint.distanceInMeter().orThrow()).isEqualTo(3600);
         assertThat(lastWaypoint.lap()).isEqualTo(1);
 
-        assertThat(activity.totals().movingTime().isPresent()).isFalse();
+        assertThat(activity.totals().movingTime().orThrow()).isEqualTo(Duration.ofSeconds(30));
+    }
+
+    private Record recordAt(Date timestamp, short cadence, double distance, double altitude) {
+        Record record = new Record();
+        record.setTimestamp(timestamp);
+        record.setSpeed(1.0);
+        record.setPower(150);
+        record.setHeartRate((short) 126);
+        record.setCadence(cadence);
+        record.setAltitude(altitude);
+        record.setDistance(distance);
+        record.setLapNumber(1);
+        return record;
     }
 
     @Test

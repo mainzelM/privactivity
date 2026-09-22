@@ -6,6 +6,8 @@ import net.privactivity.store.usecase.townfinder.model.Town;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -20,7 +22,7 @@ class ActivityTownsRepositoryImplTest {
     @Test
     void shouldStoreAndReloadActivityTownsInOwnJsonFile() {
         ActivityTownsRepositoryImpl testee = new ActivityTownsRepositoryImpl(tempDir.toString());
-        Activity activity = new Activity(123L, "Activity", null, List.of(), null);
+        Activity activity = new Activity(123L, "Activity", ZonedDateTime.now(), List.of(), Duration.ZERO);
 
         testee.setActivityTowns(activity, List.of("Berlin", "Potsdam"));
 
@@ -34,7 +36,7 @@ class ActivityTownsRepositoryImplTest {
     @Test
     void shouldReturnNoneWhenNoTownsExistForActivity() {
         ActivityTownsRepositoryImpl testee = new ActivityTownsRepositoryImpl(tempDir.toString());
-        Activity activity = new Activity(456L, "Activity", null, List.of(), null);
+        Activity activity = new Activity(456L, "Activity", ZonedDateTime.now(), List.of(), Duration.ZERO);
 
         assertThat(testee.townsOfActivity(activity).isPresent()).isFalse();
     }

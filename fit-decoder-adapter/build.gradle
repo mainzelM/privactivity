@@ -1,7 +1,13 @@
 plugins {
     id 'privactivity.library-conventions'
+    id 'java-test-fixtures'
 }
 
+sourceSets {
+    testFixtures {
+        resources.srcDir 'src/test/resources'
+    }
+}
 
 dependencies {
     implementation project(':privactivity-domain')

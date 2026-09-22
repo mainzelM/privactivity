@@ -69,7 +69,7 @@ class ExportAsCsvUseCaseTest {
         CsvExportResult result = testee.exportActivityAsCsv(1L, csvExportConfig);
         String[] lines = result.csvContent().split("\n");
 
-        assertThat(result.fileName()).isEqualTo("activity-1.csv");
+        assertThat(result.fileName()).isEqualTo("activity-1-2024-03-14.csv");
         assertThat(lines[1]).isEqualTo("0,200,");
     }
 
@@ -85,6 +85,7 @@ class ExportAsCsvUseCaseTest {
         Activity activity = Activity.builder()
                                     .id(1L)
                                     .title("Test Activity")
+                                    .start(ZonedDateTime.parse("2024-03-14T10:15:30+01:00"))
                                     .waypoints(waypoints)
                                     .totals(new Activity.Totals(Duration.ZERO))
                                     .build();
@@ -137,6 +138,7 @@ class ExportAsCsvUseCaseTest {
         Activity activity = Activity.builder()
                                     .id(1L)
                                     .title("Test Activity")
+                                    .start(ZonedDateTime.parse("2024-03-14T10:15:30+01:00"))
                                     .waypoints(waypoints)
                                     .totals(new Activity.Totals(Duration.ZERO))
                                     .build();
