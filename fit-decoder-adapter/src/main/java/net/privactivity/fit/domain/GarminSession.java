@@ -22,6 +22,7 @@ public class GarminSession {
     Double totalDistance;
     Double totalMovingTime;
     Double totalElapsedTime;
+    Double totalTimerTime;
     Integer totalCalories;
 
     Integer thresholdPower;
@@ -103,6 +104,10 @@ public class GarminSession {
 
     public Double getTotalElapsedTime() {
         return this.totalElapsedTime;
+    }
+
+    public Double getTotalTimerTime() {
+        return this.totalTimerTime;
     }
 
     public Integer getTotalCalories() {
@@ -187,6 +192,10 @@ public class GarminSession {
 
     public void setTotalElapsedTime(Double totalElapsedTime) {
         this.totalElapsedTime = totalElapsedTime;
+    }
+
+    public void setTotalTimerTime(Double totalTimerTime) {
+        this.totalTimerTime = totalTimerTime;
     }
 
     public void setTotalCalories(Integer totalCalories) {

@@ -1,26 +1,4 @@
-.activity-details-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
 
-.header-card {
-  background: linear-gradient(135deg, var(--mat-sys-primary) 0%, var(--mat-sys-secondary) 100%);
-  color: var(--mat-sys-on-primary);
-}
-
-.header-card .mat-card-title,
-.header-card .mat-card-subtitle {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  font-size: 24px;
-  font-weight: 500;
-}
 
 .activity-title-text {
   overflow-wrap: anywhere;
@@ -209,10 +187,6 @@
 }
 
 @media (max-width: 768px) {
-  .activity-details-container {
-    padding: 10px;
-  }
-
   .title-edit-container {
     flex-direction: column;
     align-items: stretch;

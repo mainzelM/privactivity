@@ -1,17 +1,3 @@
-.passes-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin: 24px auto;
-  max-width: 1240px;
-  width: calc(100% - 48px);
-}
-
-.header-card {
-  background: linear-gradient(135deg, #0b5d6b, #6da8b4);
-  color: white;
-}
-
 .content-card {
   min-height: 420px;
 }
@@ -84,10 +70,6 @@
 }
 
 @media (max-width: 600px) {
-  .passes-container {
-    width: calc(100% - 24px);
-  }
-
   .content-card > mat-card-header {
     align-items: stretch;
     flex-direction: column;

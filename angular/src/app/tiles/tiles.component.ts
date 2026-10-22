@@ -1,18 +1,18 @@
-import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, inject, NgZone } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LeafletModule } from '@bluehalo/ngx-leaflet';
-import { layerGroup, latLng, latLngBounds, Layer, Map, rectangle, tileLayer } from 'leaflet';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { TileLegend, TileMetric, TilesResponse, TileSummary } from '../tiles';
-import { TilesService } from '../tiles.service';
+import {CommonModule} from '@angular/common';
+import {Component, DestroyRef, inject, NgZone} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {LeafletModule} from '@bluehalo/ngx-leaflet';
+import {latLng, latLngBounds, Layer, Map, rectangle, tileLayer} from 'leaflet';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatSelectModule} from '@angular/material/select';
+import {FormsModule} from '@angular/forms';
+import {RouterLink} from '@angular/router';
+import {TileLegend, TileMetric, TilesResponse, TileSummary} from '../tiles';
+import {TilesService} from '../tiles.service';
 
 @Component({
     selector: 'app-tiles',
@@ -38,11 +38,11 @@ export class TilesComponent {
     private zone = inject(NgZone);
 
     readonly metrics: Array<{ value: TileMetric; label: string }> = [
-        { value: 'activityCount', label: 'Activities' },
-        { value: 'maxPower', label: 'Max Power' },
-        { value: 'maxHeartRate', label: 'Max Heart Rate' },
-        { value: 'averagePower', label: 'Average Power' },
-        { value: 'averageHeartRate', label: 'Average Heart Rate' }
+        {value: 'activityCount', label: 'Activities'},
+        {value: 'maxPower', label: 'Max Power'},
+        {value: 'maxHeartRate', label: 'Max Heart Rate'},
+        {value: 'averagePower', label: 'Average Power'},
+        {value: 'averageHeartRate', label: 'Average Heart Rate'}
     ];
 
     metric: TileMetric = 'activityCount';
@@ -53,7 +53,11 @@ export class TilesComponent {
 
     options = {
         layers: [
-            tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: 'Open Street Map' })
+            tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: 'Open Street Map',
+                referrerPolicy: 'origin-when-cross-origin'
+            })
         ],
         zoom: 10,
         center: latLng(48.13743, 11.57549)
@@ -143,7 +147,7 @@ export class TilesComponent {
                 fillColor: 'transparent'
             });
 
-            layer.bindTooltip(this.tooltipFor(tile), { sticky: true });
+            layer.bindTooltip(this.tooltipFor(tile), {sticky: true});
             layer.on('click', () => {
                 this.zone.run(() => {
                     this.selectedTile = tile;
@@ -181,7 +185,7 @@ export class TilesComponent {
             [tile.bounds.south, tile.bounds.west],
             [tile.bounds.north, tile.bounds.east]
         ] as [number, number][]));
-        this.map.fitBounds(bounds, { padding: [20, 20] });
+        this.map.fitBounds(bounds, {padding: [20, 20]});
     }
 
     private tooltipFor(tile: TileSummary): string {

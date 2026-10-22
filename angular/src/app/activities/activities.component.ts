@@ -10,6 +10,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
 import {MatButtonModule} from '@angular/material/button';
 import {MatSortModule} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -37,6 +38,10 @@ export function createTrackOverlayLabel(color: string, id: number, title: string
     return `<span style="border-left: 4px solid ${color}; padding-left: 6px;"><a href="/activity-details/${id}" class="track-link">${escapeHtml(title)}</a></span>`;
 }
 
+function fmt(value: number | null | undefined, digits: number, divisor = 1): string {
+    return value === null || value === undefined ? '' : (value / divisor).toFixed(digits);
+}
+
 function escapeHtml(value: string): string {
     return value
         .replace(/&/g, '&amp;')
@@ -56,6 +61,7 @@ function escapeHtml(value: string): string {
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         MatButtonModule,
         MatSortModule,
         MatProgressSpinnerModule,
@@ -68,7 +74,43 @@ function escapeHtml(value: string): string {
 export class ActivitiesComponent implements OnInit {
     activities: Activity[] = [];
     loading = false;
-    displayedColumns: string[] = ['select', 'id', 'title', 'date', 'distance', 'ascent', 'duration', 'details'];
+    // Columns with a dedicated template definition
+    private readonly defaultColumns = [
+        {value: 'title', label: 'Title'},
+        {value: 'date', label: 'Date'},
+        {value: 'distance', label: 'Distance'},
+        {value: 'ascent', label: 'Ascent'},
+        {value: 'duration', label: 'Moving Time'}
+    ];
+    // Additional read-only (non-sortable) columns, rendered generically
+    readonly extraColumns: { value: string, label: string, format: (a: Activity) => string }[] = [
+        {value: 'ID', label: "ID", format: a => fmt(a.id, 0)},
+        {value: 'dayOfWeek', label: 'Weekday', format: a => a.dayOfWeek ?? ''},
+        {value: 'descent', label: 'Descent (m)', format: a => fmt(a.totals?.descent, 0)},
+        {value: 'avgSpeed', label: 'Avg Speed (km/h)', format: a => fmt(a.averages?.speedInMetersPerHour, 1, 1000)},
+        {value: 'avgCadence', label: 'Avg Cadence', format: a => fmt(a.averages?.cadence, 0)},
+        {value: 'avgHeartRate', label: 'Avg HR', format: a => fmt(a.averages?.heartRate, 0)},
+        {value: 'avgPower', label: 'Avg Power (W)', format: a => fmt(a.averages?.power, 0)},
+        {value: 'maxSpeed', label: 'Max Speed (km/h)', format: a => fmt(a.maxima?.speedInMetersPerHour, 1, 1000)},
+        {value: 'maxHeartRate', label: 'Max HR', format: a => fmt(a.maxima?.heartRate, 0)},
+        {value: 'maxPower', label: 'Max Power (W)', format: a => fmt(a.maxima?.power, 0)},
+        {value: 'maxAltitude', label: 'Max Altitude (m)', format: a => fmt(a.maxima?.altitude, 0)},
+        {value: 'tss', label: 'TSS', format: a => fmt(a.summary?.trainingStressScore, 0)},
+        {value: 'trainingEffect', label: 'Training Effect', format: a => fmt(a.summary?.totalTrainingEffect, 1)},
+        {value: 'intensityFactor', label: 'Intensity Factor', format: a => fmt(a.summary?.intensityFactor, 2)},
+        {value: 'avgLeftPco', label: 'Avg Left PCO', format: a => fmt(a.summary?.avgLeftPco, 1)},
+        {value: 'avgRightPco', label: 'Avg Right PCO', format: a => fmt(a.summary?.avgRightPco, 1)}
+    ];
+    readonly configurableColumns = [...this.defaultColumns, ...this.extraColumns];
+    visibleColumns: string[] = this.defaultColumns.map(c => c.value);
+    displayedColumns: string[] = ['select', ...this.visibleColumns, 'details'];
+
+    onVisibleColumnsChange(selected: string[]): void {
+        this.visibleColumns = selected;
+        const visible = this.configurableColumns.map(c => c.value).filter(c => selected.includes(c));
+        this.displayedColumns = ['select', ...visible, 'details'];
+    }
+
     selection = new SelectionModel<Activity>(true, []);
     private trackLayers: Layer[] = [];
     private layersControl?: Control.Layers;
@@ -83,6 +125,16 @@ export class ActivitiesComponent implements OnInit {
     maxAscent: number | null = null;
     tileIdFilter: string | null = null;
     titleFilter: string | null = null;
+    dayOfWeekFilter: string | null = null;
+    readonly daysOfWeek = [
+        {value: 'MONDAY', label: 'Monday'},
+        {value: 'TUESDAY', label: 'Tuesday'},
+        {value: 'WEDNESDAY', label: 'Wednesday'},
+        {value: 'THURSDAY', label: 'Thursday'},
+        {value: 'FRIDAY', label: 'Friday'},
+        {value: 'SATURDAY', label: 'Saturday'},
+        {value: 'SUNDAY', label: 'Sunday'}
+    ];
 
     // Sorting
     sortBy: string = 'date';
@@ -91,7 +143,6 @@ export class ActivitiesComponent implements OnInit {
     // Location filter
     lat: number | null = null;
     lon: number | null = null;
-    radius: number = 5000;
     mapCenter: LatLng = latLng(48.13743, 11.57549);
 
     // Leaflet
@@ -99,7 +150,8 @@ export class ActivitiesComponent implements OnInit {
         layers: [
             tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 18,
-                attribution: 'Open Street Map'
+                attribution: 'Open Street Map',
+                referrerPolicy: 'origin-when-cross-origin'
             })
         ],
         zoom: 10,
@@ -200,6 +252,7 @@ export class ActivitiesComponent implements OnInit {
                 this.maxAscent = params['maxAscent'] ? +params['maxAscent'] : null;
                 this.tileIdFilter = params['tileId'] || null;
                 this.titleFilter = params['title'] || null;
+                this.dayOfWeekFilter = params['dayOfWeek'] || null;
                 this.lat = params['lat'] ? +params['lat'] : null;
                 this.lon = params['lon'] ? +params['lon'] : null;
                 this.sortBy = params['sortBy'] || 'date';
@@ -226,8 +279,8 @@ export class ActivitiesComponent implements OnInit {
                 filter.tileId = this.tileIdFilter ?? undefined;
                 filter.lat = this.lat ?? undefined;
                 filter.lon = this.lon ?? undefined;
-                filter.radius = this.radius;
                 filter.title = this.titleFilter ?? undefined;
+                filter.dayOfWeek = this.dayOfWeekFilter ?? undefined;
                 filter.sortBy = this.sortBy;
                 filter.sortDirection = this.sortDirection;
 
@@ -292,6 +345,7 @@ export class ActivitiesComponent implements OnInit {
                 maxAscent: this.maxAscent || null,
                 tileId: this.tileIdFilter || null,
                 title: this.titleFilter || null,
+                dayOfWeek: this.dayOfWeekFilter || null,
                 lat: this.lat || null,
                 lon: this.lon || null,
                 sortBy: this.sortBy,
@@ -320,6 +374,7 @@ export class ActivitiesComponent implements OnInit {
         this.maxAscent = null;
         this.tileIdFilter = null;
         this.titleFilter = null;
+        this.dayOfWeekFilter = null;
         this.lat = null;
         this.lon = null;
         this.layers = [];
@@ -335,6 +390,7 @@ export class ActivitiesComponent implements OnInit {
                 maxAscent: null,
                 tileId: null,
                 title: null,
+                dayOfWeek: null,
                 lat: null,
                 lon: null,
                 sortBy: 'date',

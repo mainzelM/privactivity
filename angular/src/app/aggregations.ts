@@ -14,9 +14,16 @@ export interface TotalAggregation {
     totals: Aggregation;
 }
 
-export type MovingSum = { [date: string]: number };
+export interface MovingSumValues {
+    distanceInMeters: number;
+    movingTimeInHours: number;
+    ascentInKilometers: number;
+}
+
+export type MovingSum = { [date: string]: MovingSumValues };
 
 export interface EddigtionChart {
     countsPerKM: number[];
     eddigtionNumber: number;
+    missingToNext: number;
 }

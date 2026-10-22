@@ -68,6 +68,30 @@ class ImportActivitiesUseCaseTest {
                 .containsExactly(expectedId);
     }
 
+    @Test
+    void importDirectory_shouldReturnIdsOfAllImportedActivities() throws Exception {
+        Path firstFitFile = importDirectory.resolve("2026-04-04-04-04-44.fit");
+        Path secondFitFile = importDirectory.resolve("2026-05-05-05-05-55.fit");
+        copyToImportDir(firstFitFile);
+        copyToImportDir(secondFitFile);
+        MapBasedActivityRepository activityRepository = new MapBasedActivityRepository(Map.of());
+
+        ImportActivitiesUseCase testee = new ImportActivitiesUseCase(activityRepository, new FitDecoderImpl(),
+                                                                     null, null, _ -> List.of());
+
+        List<Long> importedIds = testee.importDirectory(importDirectory, false);
+
+        long firstExpectedId = LocalDateTime.of(2026, 4, 4, 4, 4, 44)
+                                            .atZone(ZoneId.systemDefault())
+                                            .toInstant()
+                                            .toEpochMilli();
+        long secondExpectedId = LocalDateTime.of(2026, 5, 5, 5, 5, 55)
+                                             .atZone(ZoneId.systemDefault())
+                                             .toInstant()
+                                             .toEpochMilli();
+        assertThat(importedIds).containsExactlyInAnyOrder(firstExpectedId, secondExpectedId);
+    }
+
     private void copyToImportDir(Path fitFile) throws IOException {
         try (InputStream fixture = Objects.requireNonNull(getClass().getResourceAsStream("/Activity.fit"))) {
             Files.copy(fixture, fitFile);

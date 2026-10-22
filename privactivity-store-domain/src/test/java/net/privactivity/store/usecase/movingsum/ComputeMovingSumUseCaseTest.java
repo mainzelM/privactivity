@@ -26,7 +26,7 @@ class ComputeMovingSumUseCaseTest {
         MapBasedActivityRepository activityRepository = new MapBasedActivityRepository(Map.of());
         testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2023, 7, 8));
 
-        Map<LocalDate, Integer> result = testee.compute(7);
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(7);
 
         assertThat(result).isEmpty();
     }
@@ -37,11 +37,11 @@ class ComputeMovingSumUseCaseTest {
                 1L, activity(1, "Run 1", dateTime(2023, 7, 1), 5000)));
         testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2023, 7, 8));
 
-        Map<LocalDate, Integer> result = testee.compute(7);
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(7);
 
         assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of(
-                LocalDate.of(2023, 7, 7), 5000,
-                LocalDate.of(2023, 7, 8), 0));
+                LocalDate.of(2023, 7, 7), movingSum(5000, 1, 0),
+                LocalDate.of(2023, 7, 8), movingSum(0, 0, 0)));
     }
 
     @Test
@@ -52,11 +52,11 @@ class ComputeMovingSumUseCaseTest {
                 3L, activity(3, "Run 3", dateTime(2024, 8, 3), 4000)));
         testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2024, 8, 4));
 
-        Map<LocalDate, Integer> result = testee.compute(3);
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(3);
 
         assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of(
-                LocalDate.of(2024, 8, 3), 15000,
-                LocalDate.of(2024, 8, 4), 10000));
+                LocalDate.of(2024, 8, 3), movingSum(15000, 3, 0),
+                LocalDate.of(2024, 8, 4), movingSum(10000, 2, 0)));
     }
 
     @Test
@@ -68,13 +68,13 @@ class ComputeMovingSumUseCaseTest {
                 4L, activity(4, "Run 4", dateTime(2024, 8, 4), 7000)));
         testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2024, 8, 4));
 
-        Map<LocalDate, Integer> result = testee.compute(2);
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(2);
 
         assertThat(result)
                 .containsExactlyInAnyOrderEntriesOf(Map.of(
-                        LocalDate.of(2024, 8, 2), 11000,
-                        LocalDate.of(2024, 8, 3), 10000,
-                        LocalDate.of(2024, 8, 4), 11000));
+                        LocalDate.of(2024, 8, 2), movingSum(11000, 2, 0),
+                        LocalDate.of(2024, 8, 3), movingSum(10000, 2, 0),
+                        LocalDate.of(2024, 8, 4), movingSum(11000, 2, 0)));
     }
 
     @Test
@@ -85,11 +85,11 @@ class ComputeMovingSumUseCaseTest {
                 3L, activity(3, "Run 3", dateTime(2024, 8, 3), 4000)));
         testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2024, 8, 4));
 
-        Map<LocalDate, Integer> result = testee.compute(3);
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(3);
 
         assertThat(result).containsExactlyInAnyOrderEntriesOf(Map.of(
-                LocalDate.of(2024, 8, 3), 9000,
-                LocalDate.of(2024, 8, 4), 4000));
+                LocalDate.of(2024, 8, 3), movingSum(9000, 3, 0),
+                LocalDate.of(2024, 8, 4), movingSum(4000, 2, 0)));
     }
 
     @Test
@@ -100,17 +100,35 @@ class ComputeMovingSumUseCaseTest {
                 3L, activity(3, "Run 3", dateTime(2024, 8, 3), 4000)));
         testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2024, 8, 4));
 
-        Map<LocalDate, Integer> result = testee.compute(1);
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(1);
 
         assertThat(result)
                 .containsExactlyInAnyOrderEntriesOf(Map.of(
-                        LocalDate.of(2024, 8, 1), 5000,
-                        LocalDate.of(2024, 8, 2), 6000,
-                        LocalDate.of(2024, 8, 3), 4000,
-                        LocalDate.of(2024, 8, 4), 0));
+                        LocalDate.of(2024, 8, 1), movingSum(5000, 1, 0),
+                        LocalDate.of(2024, 8, 2), movingSum(6000, 1, 0),
+                        LocalDate.of(2024, 8, 3), movingSum(4000, 1, 0),
+                        LocalDate.of(2024, 8, 4), movingSum(0, 0, 0)));
+    }
+
+    @Test
+    void sumsDistanceMovingTimeAndAscent() {
+        MapBasedActivityRepository activityRepository = new MapBasedActivityRepository(Map.of(
+                1L, activity(1, "Run 1", dateTime(2024, 8, 1), 5000, 1000, Duration.ofMinutes(60)),
+                2L, activity(2, "Run 2", dateTime(2024, 8, 2), 6000, 2000, Duration.ofMinutes(120))));
+        testee = new ComputeMovingSumUseCase(activityRepository, LocalDate.of(2024, 8, 2));
+
+        Map<LocalDate, ComputeMovingSumUseCase.MovingSum> result = testee.compute(2);
+
+        assertThat(result.get(LocalDate.of(2024, 8, 2)))
+                .isEqualTo(movingSum(11000, 3, 3));
     }
 
     private Activity activity(long id, String title, ZonedDateTime start, int distanceInMeters) {
+        return activity(id, title, start, distanceInMeters, 0, Duration.ofHours(1));
+    }
+
+    private Activity activity(long id, String title, ZonedDateTime start, int distanceInMeters, int ascent,
+                              Duration movingTime) {
         return Activity.builder()
                        .id(id)
                        .title(title)
@@ -118,13 +136,18 @@ class ComputeMovingSumUseCaseTest {
                        .waypoints(List.of())
                        .totals(new Activity.Totals(
                                some(distanceInMeters),
+                               some(ascent),
                                none(),
-                               none(),
-                               some(Duration.ofHours(1)),
+                               some(movingTime),
                                none()
                        ))
                        .bounds(Bounds.of(0d, 0d, 0d, 0d))
                        .build();
+    }
+
+    private ComputeMovingSumUseCase.MovingSum movingSum(int distanceInMeters, int movingTimeInHours,
+                                                        int ascentInKilometers) {
+        return new ComputeMovingSumUseCase.MovingSum(distanceInMeters, movingTimeInHours, ascentInKilometers);
     }
 
     @SuppressWarnings("SameParameterValue")

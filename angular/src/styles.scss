@@ -9,3 +9,73 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+.activities-container,
+.aggregations-container,
+.activity-details-container,
+.admin-container,
+.max-power-container,
+.tiles-container,
+.passes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 12px 0 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header-card {
+  background: linear-gradient(135deg, #0b5d6b, #6da8b4);
+  color: white;
+}
+
+.header-card mat-card-title,
+.header-card mat-card-subtitle {
+  color: inherit;
+}
+
+.header-card mat-card-header {
+  align-items: center;
+  padding: 16px;
+  min-height: 64px;
+  box-sizing: border-box;
+}
+
+.header-card .mat-mdc-card-header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  min-height: 32px;
+}
+
+.header-card mat-card-title > mat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  font-size: 32px;
+  margin: 0;
+}
+
+.header-card .header-icon {
+  display: block;
+  height: 32px;
+  width: auto;
+  margin: 0;
+}
+
+/* SVGs without an explicit fill render black; force them to white */
+.header-card .header-icon[src$="logo.svg"],
+.header-card .header-icon[src$="sigma-sum-icon.svg"],
+.header-card .header-icon[src$="plug-circle-bolt-solid.svg"] {
+  filter: brightness(0) invert(1);
+}

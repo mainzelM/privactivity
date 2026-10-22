@@ -2,6 +2,7 @@ package net.privactivity.store.unified;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import net.privactivity.domain.Activity;
+import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ public record ActivityDTO(
         long id,
         String title,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime start,
+        DayOfWeek dayOfWeek,
         List<WaypointDTO> waypoints,
         TotalsDTO totals,
         AveragesDTO averages,
@@ -22,6 +24,7 @@ public record ActivityDTO(
                 activity.id(),
                 activity.title(),
                 activity.start(),
+                activity.getDayOfWeek(),
                 activity.waypoints().stream().map(WaypointDTO::new).collect(Collectors.toList()),
                 new TotalsDTO(activity.totals()),
                 new AveragesDTO(activity.averages()),

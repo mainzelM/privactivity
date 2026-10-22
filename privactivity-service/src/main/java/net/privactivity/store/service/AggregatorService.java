@@ -33,13 +33,13 @@ public class AggregatorService {
         return aggregatorUseCase.aggregateYTD();
     }
 
-    public Map<LocalDate, Integer> movingSum(int numDays) {
+    public Map<LocalDate, ComputeMovingSumUseCase.MovingSum> movingSum(int numDays) {
         ComputeMovingSumUseCase computeMovingSumUseCase = new ComputeMovingSumUseCase(activityRepository,
                                                                                       LocalDate.now());
         return computeMovingSumUseCase.compute(numDays);
     }
 
-    public ComputeEddingtonChartUseCase.EddigtionChart eddingtionChart() {
+    public ComputeEddingtonChartUseCase.EddingtonChart eddingtionChart() {
         ComputeEddingtonChartUseCase testee = new ComputeEddingtonChartUseCase(activityRepository);
         return testee.act();
     }

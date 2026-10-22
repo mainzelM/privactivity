@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -294,6 +295,26 @@ class FindActivitiesUseCaseTest {
         List<Activity> result = testee.findFilteredAndSortedActivities(false, filter, null, SortDirection.asc);
 
         assertThat(result).containsExactly(activity);
+    }
+
+    @Test
+    void findFilteredActivities_shouldFilterByDayOfWeek() {
+        Activity mondayActivity = createActivity(1L, "Monday Activity", 5000)
+                .withStart(ZonedDateTime.parse("2026-09-21T10:00:00Z"));
+        Activity tuesdayActivity = createActivity(2L, "Tuesday Activity", 5000)
+                .withStart(ZonedDateTime.parse("2026-09-22T10:00:00Z"));
+        Activity anotherMondayActivity = createActivity(3L, "Another Monday Activity", 5000)
+                .withStart(ZonedDateTime.parse("2026-09-28T10:00:00Z"));
+
+        when(activityRepository.getAll(false))
+                .thenReturn(List.of(mondayActivity, tuesdayActivity, anotherMondayActivity));
+        when(metaDataRepository.getMetaDataForActivity(anyLong())).thenReturn(Maybe.none());
+
+        DayOfWeekFilter filter = new DayOfWeekFilter(DayOfWeek.MONDAY);
+
+        List<Activity> result = testee.findFilteredAndSortedActivities(false, filter, null, SortDirection.asc);
+
+        assertThat(result).containsExactly(mondayActivity, anotherMondayActivity);
     }
 
     @Test

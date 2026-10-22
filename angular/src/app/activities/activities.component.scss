@@ -1,28 +1,5 @@
-.activities-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin: 24px auto;
-  max-width: 1200px;
-  width: calc(100% - 48px);
-}
-
-.header-card {
-  background: linear-gradient(90deg, var(--mat-sys-primary) 0%, var(--mat-sys-secondary) 100%);
-  color: var(--mat-sys-on-primary);
-  box-shadow: 0 4px 20px var(--mat-sys-shadow);
-
-  mat-card-header {
-    margin-bottom: 16px;
-  }
-}
-
 .filter-content {
-  background-color: white; // Or use a theme variable if possible, but keeping it simple for now to ensure visibility on the gradient card
   padding: 16px;
-  border-radius: 4px;
-  margin: 0 16px 16px 16px;
-  color: black;
 }
 
 .filter-row {
@@ -104,11 +81,6 @@ tr.clickable-row:hover .details-arrow {
   font-size: 1.05rem;
 }
 
-.mat-card-title mat-icon {
-  vertical-align: middle;
-  margin-right: 8px;
-}
-
 .sortable-header {
   cursor: pointer;
   user-select: none;
@@ -139,6 +111,12 @@ tr.clickable-row:hover .details-arrow {
   justify-content: center;
   align-items: center;
   padding: 48px 0;
+}
+
+.narrow-column {
+  width: 90px !important;
+  max-width: 90px !important;
+  text-align: right;
 }
 
 .track-actions {

@@ -6,7 +6,6 @@ plugins {
 dependencies {
     implementation project(':privactivity-store-domain')
     implementation project(':privactivity-service')
-    implementation project(':microstream-repositories') // TODO: wrong, because ClimbResource directly uses ClimbStore
     implementation project(':privactivity-domain')
 
 

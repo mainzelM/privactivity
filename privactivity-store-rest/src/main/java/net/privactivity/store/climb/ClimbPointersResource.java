@@ -1,7 +1,7 @@
 package net.privactivity.store.climb;
 
 import net.privactivity.domain.ClimbPointer;
-import net.privactivity.store.repo.climb.ClimbRepository;
+import net.privactivity.store.service.ClimbService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,29 +16,29 @@ import java.util.Set;
 @RestController
 @RequestMapping("/climb-pointers")
 public class ClimbPointersResource {
-    private final ClimbRepository climbRepository;
+    private final ClimbService climbService;
 
-    public ClimbPointersResource(ClimbRepository climbRepository) {
-        this.climbRepository = climbRepository;
+    public ClimbPointersResource(ClimbService climbService) {
+        this.climbService = climbService;
     }
 
     @GetMapping("")
     public Map<Long, Set<ClimbPointer>> allClimbs() {
-        return climbRepository.getAllClimbPointers();
+        return climbService.getAllClimbPointers();
     }
 
     @GetMapping("/{activityId}")
     public Set<ClimbPointer> get(@PathVariable long activityId) {
-        return climbRepository.climbsOf(activityId);
+        return climbService.climbsOf(activityId);
     }
 
     @PostMapping("/{activityId}")
     public void addClimbs(@PathVariable long activityId, @RequestBody Set<ClimbPointer> climbs) {
-        climbRepository.addActivityClimbPointers(activityId, climbs);
+        climbService.addActivityClimbPointers(activityId, climbs);
     }
 
     @DeleteMapping
     public void removeAll() {
-        climbRepository.removeAllClimbPointers();
+        climbService.removeAllClimbPointers();
     }
 }

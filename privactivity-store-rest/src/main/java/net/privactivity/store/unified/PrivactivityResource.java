@@ -10,6 +10,7 @@ import net.privactivity.store.usecase.export.exportascsv.CsvExportConfig;
 import net.privactivity.store.usecase.export.exportascsv.CsvExportResult;
 import net.privactivity.store.usecase.findActivities.AndFilter;
 import net.privactivity.store.usecase.findActivities.AscentFilter;
+import net.privactivity.store.usecase.findActivities.DayOfWeekFilter;
 import net.privactivity.store.usecase.findActivities.DistanceFilter;
 import net.privactivity.store.usecase.findActivities.EmptyFilter;
 import net.privactivity.store.usecase.findActivities.LocationFilter;
@@ -82,12 +83,16 @@ public class PrivactivityResource {
         }
 
         if (request.lat() != null && request.lon() != null) {
-            int radius = request.radius() != null ? request.radius() : 5000;
+            int radius = 500;
             filters.add(new LocationFilter(request.lat(), request.lon(), radius));
         }
 
         if (request.title() != null && !request.title().isBlank()) {
             filters.add(new TitleFilter(request.title()));
+        }
+
+        if (request.dayOfWeek() != null) {
+            filters.add(new DayOfWeekFilter(request.dayOfWeek()));
         }
 
         if (request.tileId() != null) {

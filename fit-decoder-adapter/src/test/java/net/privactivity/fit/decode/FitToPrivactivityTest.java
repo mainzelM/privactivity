@@ -73,6 +73,25 @@ class FitToPrivactivityTest {
     }
 
     @Test
+    void testConvertFallsBackToTotalTimerTimeWhenMovingTimeMissing() {
+        Date start = new Date(1_700_000_000_000L);
+        TrainingData trainingData = new TrainingData();
+        trainingData.setId(42L);
+        trainingData.setDate(start);
+        trainingData.addRecord(recordAt(start, (short) 0, 0.0, 127.0));
+        GarminSession garminSession = new GarminSession();
+        // total_moving_time is optional and many devices never populate it, but total_timer_time is
+        // (almost) always present.
+        garminSession.setTotalTimerTime(1800.0);
+        trainingData.setGarminSession(garminSession);
+
+        FitToPrivactivity testee = new FitToPrivactivity();
+        Activity activity = testee.convert(trainingData);
+
+        assertThat(activity.totals().movingTime().orThrow()).isEqualTo(Duration.ofSeconds(1800));
+    }
+
+    @Test
     void testConvertRecordWithoutLapNumberDefaultsToOne() {
         Record record = new Record();
         Date timestamp = new Date();

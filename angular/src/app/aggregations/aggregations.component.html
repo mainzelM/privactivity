@@ -3,7 +3,7 @@
     <mat-card class="header-card">
         <mat-card-header>
             <mat-card-title>
-                <mat-icon>analytics</mat-icon>
+                <img class="header-icon" src="/assets/sigma-sum-icon.svg" alt="" aria-hidden="true"/>
                 Activity Aggregations
             </mat-card-title>
         </mat-card-header>
@@ -121,7 +121,8 @@
                             </mat-card-title>
                             @if (eddigtionChart) {
                                 <mat-card-subtitle>
-                                    Eddington Number: {{ eddigtionChart.eddigtionNumber }}
+                                    Eddington Number: {{ eddigtionChart.eddigtionNumber }}, missing to
+                                    {{ eddigtionChart.eddigtionNumber + 1 }}: {{ eddigtionChart.missingToNext }}
                                 </mat-card-subtitle>
                             }
                         </mat-card-header>

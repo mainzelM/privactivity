@@ -19,23 +19,23 @@ public class ComputeEddingtonChartUseCase {
         this.activityRepository = activityRepository;
     }
 
-    public record EddigtionChart(List<Integer> countsPerKM, int eddigtionNumber) {
+    public record EddingtonChart(List<Integer> countsPerKM, int eddigtionNumber, int missingToNext) {
     }
 
-    public EddigtionChart act() {
+    public EddingtonChart act() {
 
         List<Integer> sortedDistances =
                 new ArrayList<>(groupByDateAndSumDistancePerDay(activityRepository.getAll(false)));
         sortedDistances.sort(Collections.reverseOrder());
 
         if (sortedDistances.isEmpty()) {
-            return new EddigtionChart(Collections.emptyList(), 0);
+            return new EddingtonChart(Collections.emptyList(), 0, 0);
         }
         int highest = sortedDistances.getFirst();
         List<Integer> numActivitiesPerKm = new ArrayList<>(Arrays.asList(new Integer[highest + 1]));
         int currentCount = 0;
         int currentActivityIndex = 0;
-        int eddingtionNumber = 0;
+        int eddingtonNumber = 0;
         for (int i = highest; i >= 0; i--) {
             while (currentActivityIndex < sortedDistances.size()) {
                 int activityKm = sortedDistances.get(currentActivityIndex);
@@ -48,10 +48,20 @@ public class ComputeEddingtonChartUseCase {
             }
             numActivitiesPerKm.set(i, currentCount);
             if (currentCount >= i) {
-                eddingtionNumber = Math.max(eddingtionNumber, i);
+                eddingtonNumber = Math.max(eddingtonNumber, i);
             }
         }
-        return new EddigtionChart(numActivitiesPerKm, eddingtionNumber);
+        int nextEddingtonNumber = eddingtonNumber + 1;
+        int missingToNext = missingToNext(numActivitiesPerKm, nextEddingtonNumber);
+        return new EddingtonChart(numActivitiesPerKm, eddingtonNumber, missingToNext);
+    }
+
+    private int missingToNext(List<Integer> numActivitiesPerKm, int nextEddingtonNumber) {
+        if (numActivitiesPerKm.size() > nextEddingtonNumber) {
+            return nextEddingtonNumber - numActivitiesPerKm.get(nextEddingtonNumber);
+        } else {
+            return 0;
+        }
     }
 
     private Collection<Integer> groupByDateAndSumDistancePerDay(List<Activity> activities) {

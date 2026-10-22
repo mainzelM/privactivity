@@ -6,7 +6,7 @@ dependencies {
     implementation project(':privactivity-domain')
     implementation project(':privactivity-store-domain')
     implementation project(':geojson-domain')
-
+    implementation project(':microstream-repositories')
 
     implementation 'org.springframework:spring-context'
     implementation 'org.slf4j:slf4j-api'

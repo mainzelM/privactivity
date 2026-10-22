@@ -114,8 +114,24 @@ public class FitToPrivactivity {
         return new Activity.Totals(nullAsNone(gs.getTotalDistance()).map(d -> (int) Math.round(d)),
                                    nullAsNone(gs.getTotalAscent()),
                                    nullAsNone(gs.getTotalDescent()),
-                                   nullAsNone(gs.getTotalMovingTime()).map(d -> (int) Math.round(d)).map(Duration::ofSeconds),
+                                   makeMovingTime(gs),
                                    nullAsNone(gs.getTotalCalories()));
+    }
+
+    /**
+     * Falls back to total_timer_time when total_moving_time is absent: many devices never
+     * populate the (optional) moving-time field, while timer time - which already excludes
+     * auto-paused periods - is present on virtually every FIT session message.
+     *
+     * @see <a href="https://developer.garmin.com/fit/cookbook/durations/">
+     *      Garmin FIT SDK Cookbook: Elapsed, Timer, and Moving Durations</a>
+     */
+    private Maybe<Duration> makeMovingTime(GarminSession gs) {
+        Maybe<Double> movingTimeSeconds = nullAsNone(gs.getTotalMovingTime());
+        if (!movingTimeSeconds.isPresent()) {
+            movingTimeSeconds = nullAsNone(gs.getTotalTimerTime());
+        }
+        return movingTimeSeconds.map(d -> (int) Math.round(d)).map(Duration::ofSeconds);
     }
 
     private Activity.Averages makeAverages(GarminSession gs) {

@@ -9,6 +9,7 @@ export interface ActivityFilterRequest {
     lon?: number;
     radius?: number;
     title?: string;
+    dayOfWeek?: string;
     sortBy?: string;
     sortDirection?: string;
 }

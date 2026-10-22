@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -45,8 +46,10 @@ public class AggregationsResource {
     }
 
     @GetMapping("moving-sum")
-    public Map<LocalDate, Integer> movingSum(@RequestParam(value = "numDays", defaultValue = "365") int numDays) {
-        return aggregatorService.movingSum(numDays);
+    public Map<LocalDate, MovingSumDTO> movingSum(@RequestParam(value = "numDays", defaultValue = "365") int numDays) {
+        Map<LocalDate, MovingSumDTO> result = new HashMap<>();
+        aggregatorService.movingSum(numDays).forEach((date, movingSum) -> result.put(date, new MovingSumDTO(movingSum)));
+        return result;
     }
 
     @GetMapping("eddington-chart")

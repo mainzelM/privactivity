@@ -61,7 +61,19 @@ export class AggregationsComponent {
             tooltip: {
                 callbacks: {
                     title: (items) => items.length > 0 ? String(items[0].label) : '',
-                    label: (item) => `Distance: ${Number(item.parsed.y).toFixed(1)} km`
+                    label: (item) => {
+                        const value = Number(item.parsed.y);
+                        switch (item.dataset.label) {
+                            case 'Distance':
+                                return `Distance: ${value.toFixed(1)} km`;
+                            case 'Moving time':
+                                return `Moving time: ${value.toFixed(1)} h`;
+                            case 'Ascent':
+                                return `Ascent: ${Math.round(value)} km`;
+                            default:
+                                return `${item.dataset.label ?? 'Value'}: ${value}`;
+                        }
+                    }
                 }
             }
         },
@@ -89,9 +101,33 @@ export class AggregationsComponent {
                 }
             },
             y: {
+                beginAtZero: true,
                 title: {
                     display: true,
                     text: 'Distance (km)'
+                }
+            },
+            y1: {
+                beginAtZero: true,
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false
+                },
+                title: {
+                    display: true,
+                    text: 'Moving time (hours)'
+                }
+            },
+            y2: {
+                beginAtZero: true,
+                position: 'left',
+                offset: true,
+                grid: {
+                    drawOnChartArea: false
+                },
+                title: {
+                    display: true,
+                    text: 'Ascent (km)'
                 }
             }
         }
@@ -189,20 +225,47 @@ export class AggregationsComponent {
     private updateMovingSumChart(movingSum: MovingSum): void {
         const entries = Object.entries(movingSum).sort(([dateA], [dateB]) => dateA.localeCompare(dateB));
         const labels = entries.map(([date]) => date);
-        const valuesInKm = entries.map(([, meters]) => Math.round((meters / 1000) * 10) / 10);
+        const valuesInKm = entries.map(([, movingSum]) =>
+            Math.round((movingSum.distanceInMeters / 1000) * 10) / 10
+        );
+        const movingTimeInHours = entries.map(([, movingSum]) => movingSum.movingTimeInHours);
+        const ascentInKilometers = entries.map(([, movingSum]) => movingSum.ascentInKilometers);
 
         this.movingSumChartData = {
             labels,
             datasets: [
                 {
-                    label: `${this.movingSumNumDays}-day moving sum`,
+                    label: 'Distance',
                     data: valuesInKm,
+                    yAxisID: 'y',
                     borderColor: 'rgba(30 ,136, 229, 0.8)',
                     backgroundColor: 'rgba(30 ,136, 229, 0.3)',
                     borderWidth: 2,
                     pointRadius: 0,
                     tension: 0.15,
                     fill: true
+                },
+                {
+                    label: 'Moving time',
+                    data: movingTimeInHours,
+                    yAxisID: 'y1',
+                    borderColor: 'rgba(67, 160, 71, 0.8)',
+                    backgroundColor: 'rgba(67, 160, 71, 0.15)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.15,
+                    fill: false
+                },
+                {
+                    label: 'Ascent',
+                    data: ascentInKilometers,
+                    yAxisID: 'y2',
+                    borderColor: 'rgba(251, 140, 0, 0.8)',
+                    backgroundColor: 'rgba(251, 140, 0, 0.15)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.15,
+                    fill: false
                 }
             ]
         };

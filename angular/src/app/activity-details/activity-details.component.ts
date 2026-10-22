@@ -75,7 +75,10 @@ export class ActivityDetailsComponent implements OnInit {
     // Leaflet bindings
     fitBounds = latLngBounds(latLng(0, 0), latLng(0, 0));
     options = {
-        layers: [tileLayer(this.optionsSpec.layers[0].url, {attribution: this.optionsSpec.layers[0].attribution})]
+        layers: [tileLayer(this.optionsSpec.layers[0].url, {
+            attribution: this.optionsSpec.layers[0].attribution,
+            referrerPolicy: 'origin-when-cross-origin'
+        })]
     };
 
     geoJSON = geoJSON(

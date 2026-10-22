@@ -1,6 +1,7 @@
 package net.privactivity.domain;
 
 import java.time.Duration;
+import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -151,6 +152,10 @@ public record Activity(long id,
 
     public Activity withStart(ZonedDateTime start) {
         return new Activity(id, title, start, waypoints, totals, averages, maxima, climbPointers, bounds, summary);
+    }
+
+    public DayOfWeek getDayOfWeek() {
+        return start.getDayOfWeek();
     }
 
     public record Totals(

@@ -3,38 +3,38 @@
         <mat-card class="header-card">
             <mat-card-header>
                 <mat-card-title>
-                    <mat-icon>directions_bike</mat-icon>
+                    <img class="header-icon" src="/assets/logo.svg" alt="" aria-hidden="true"/>
                     @if (!isEditingTitle) {
                         <span class="activity-title-text">{{ activity.title }}</span>
                         <button mat-icon-button type="button" aria-label="Edit title" (click)="startTitleEdit()">
                             <mat-icon>edit</mat-icon>
                         </button>
                     } @else {
-                    <div class="title-edit-container">
-                        <mat-form-field appearance="outline" class="title-edit-field" subscriptSizing="dynamic">
-                            <mat-label>Title</mat-label>
-                            <input matInput type="text" [(ngModel)]="editedTitle" [disabled]="isSavingTitle"
-                                   (keyup.enter)="saveTitle()" (keyup.escape)="cancelTitleEdit()">
-                            @if (titleErrorMessage) {
-                                <mat-error>{{ titleErrorMessage }}</mat-error>
-                            }
-                        </mat-form-field>
-                        <div class="title-edit-actions">
-                            <button mat-icon-button type="button" aria-label="Save title"
-                                    [disabled]="isSavingTitle || !editedTitle.trim()" (click)="saveTitle()">
-                                <mat-icon>check</mat-icon>
-                            </button>
-                            <button mat-icon-button type="button" aria-label="Cancel editing"
-                                    [disabled]="isSavingTitle" (click)="cancelTitleEdit()">
-                                <mat-icon>close</mat-icon>
-                            </button>
+                        <div class="title-edit-container">
+                            <mat-form-field appearance="outline" class="title-edit-field" subscriptSizing="dynamic">
+                                <mat-label>Title</mat-label>
+                                <input matInput type="text" [(ngModel)]="editedTitle" [disabled]="isSavingTitle"
+                                       (keyup.enter)="saveTitle()" (keyup.escape)="cancelTitleEdit()">
+                                @if (titleErrorMessage) {
+                                    <mat-error>{{ titleErrorMessage }}</mat-error>
+                                }
+                            </mat-form-field>
+                            <div class="title-edit-actions">
+                                <button mat-icon-button type="button" aria-label="Save title"
+                                        [disabled]="isSavingTitle || !editedTitle.trim()" (click)="saveTitle()">
+                                    <mat-icon>check</mat-icon>
+                                </button>
+                                <button mat-icon-button type="button" aria-label="Cancel editing"
+                                        [disabled]="isSavingTitle" (click)="cancelTitleEdit()">
+                                    <mat-icon>close</mat-icon>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                }
+                    }
                 </mat-card-title>
                 <mat-card-subtitle>
                     <mat-icon>calendar_today</mat-icon>
-                    {{ activity.start | date:'medium' }}
+                    {{ activity.dayOfWeek | titlecase }}, {{ activity.start | date:'dd.MM.yyyy HH:mm' }}
                 </mat-card-subtitle>
             </mat-card-header>
         </mat-card>

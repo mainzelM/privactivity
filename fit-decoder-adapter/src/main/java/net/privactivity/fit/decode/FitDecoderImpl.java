@@ -187,6 +187,10 @@ public class FitDecoderImpl implements FitDecoder {
                 garminSession.setTotalElapsedTime(BigDecimal.valueOf(mesg.getTotalElapsedTime())
                                                             .setScale(1, RoundingMode.HALF_UP).doubleValue());
             }
+            if (mesg.getTotalTimerTime() != null) {
+                garminSession.setTotalTimerTime(BigDecimal.valueOf(mesg.getTotalTimerTime())
+                                                          .setScale(1, RoundingMode.HALF_UP).doubleValue());
+            }
 
             garminSession.setAvgPower(mesg.getAvgPower());
             garminSession.setMaxPower(mesg.getMaxPower());

@@ -15,8 +15,8 @@ header {
 }
 
 .app-header-card {
-  margin: 0 auto 32px auto;
-  max-width: 1200px;
+  margin: 0 auto 8px auto;
+  max-width: 100%;
   background: linear-gradient(90deg, var(--mat-sys-primary) 0%, var(--mat-sys-secondary) 100%);
   color: var(--mat-sys-on-primary);
   box-shadow: 0 4px 20px var(--mat-sys-shadow);
@@ -74,8 +74,8 @@ header {
 }
 
 .content {
-  padding: var(--content-padding);
-  max-width: 1200px;
+  padding: 0 16px;
+  max-width: 100%;
   margin: 0 auto;
 }
 

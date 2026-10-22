@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
@@ -54,32 +55,39 @@ public class ImportActivitiesUseCase {
         this.activitiesJsonReader = activitiesJsonReader;
     }
 
-    public void importDirectory(Path dir, boolean removeAllBeforeImport) {
+    public List<Long> importDirectory(Path dir, boolean removeAllBeforeImport) {
         try {
             if (removeAllBeforeImport) {
                 removeAll();
             }
-            importZipFiles(dir);
-            importPlainFitFiles(dir);
+            List<Long> importedIds = new ArrayList<>();
+            importedIds.addAll(importZipFiles(dir));
+            importedIds.addAll(importPlainFitFiles(dir));
             activityRepository.gc();
+            return importedIds;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void importPlainFitFiles(Path dir) throws IOException {
+    private List<Long> importPlainFitFiles(Path dir) throws IOException {
         try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(".fit"))) {
-            stream.forEach(this::importFitFile);
+            return stream.map(this::importFitFile)
+                         .filter(Optional::isPresent)
+                         .map(Optional::get)
+                         .toList();
         }
     }
 
-    private void importZipFiles(Path dir) throws IOException {
+    private List<Long> importZipFiles(Path dir) throws IOException {
         List<GarminActivity> activities = activitiesJsonReader.read(dir);
         try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(".zip"))) {
-            stream.map(this::importZip)
-                  .filter(Optional::isPresent)
-                  .map(Optional::get)
-                  .forEach(id -> addTitleFromActivitiesJson(id, activities));
+            List<Long> importedIds = stream.map(this::importZip)
+                                           .filter(Optional::isPresent)
+                                           .map(Optional::get)
+                                           .toList();
+            importedIds.forEach(id -> addTitleFromActivitiesJson(id, activities));
+            return importedIds;
         }
     }
 
@@ -145,7 +153,7 @@ public class ImportActivitiesUseCase {
         activityRepository.updateActivity(activity, false);
     }
 
-    public Optional<Long> importZip(Path path) {
+    private Optional<Long> importZip(Path path) {
         try {
             Optional<Activity> activity = decodeZip(path, activityRepository::containsActivityId);
             if (activity.isPresent()) {
@@ -163,13 +171,15 @@ public class ImportActivitiesUseCase {
         }
     }
 
-    public void importFitFile(Path path) {
+    private Optional<Long> importFitFile(Path path) {
         try (FileInputStream fis = new FileInputStream(path.toFile())) {
             long id = parseFilenameAsId(path.getFileName().toString());
             if (!activityRepository.containsActivityId(id)) {
                 Activity activity = fitDecoder.extractFit(fis, id);
                 activityRepository.addActivity(activity);
+                return Optional.of(id);
             }
+            return Optional.empty();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -228,12 +238,5 @@ public class ImportActivitiesUseCase {
 
     private void removeAll() {
         activityRepository.removeAll();
-    }
-
-    static void main(String[] args) throws IOException {
-  /*      FitDecoder fitDecoder = new FitDecoderImpl();
-        FitImporter fitImporter = new FitImporter(null, fitDecoder);
-        Optional<Activity> activity = fitImporter.decodeZip(Path.of(args[0]), aLong -> false);
-        System.out.println(activity.orElseThrow());*/
     }
 }

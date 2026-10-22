@@ -3,12 +3,15 @@
 ## Reference Documentation
 
 **For comprehensive technical documentation:**
-- **[DEVELOPMENT.md](../DEVELOPMENT.md)** — Architecture overview, layering, development workflow, REST API, configuration, testing, and frontend integration
+
+- **[DEVELOPMENT.md](../DEVELOPMENT.md)** — Architecture overview, layering, development workflow, REST API,
+  configuration, testing, and frontend integration
 - **[README.md](../README.md)** — Project overview, installation, and quick start
 
 ### Startup Checklist (Mandatory For Every New Chat)
 
-- Before proposing changes, read [DEVELOPMENT.md](../DEVELOPMENT.md#layering--responsibilities) for layer boundaries and coding patterns
+- Before proposing changes, read [DEVELOPMENT.md](../DEVELOPMENT.md#layering--responsibilities) for layer boundaries and
+  coding patterns
 - If the task touches `angular/`, follow the Angular Command Policy below
 - If the task touches REST/Service/UseCase code, enforce the layer boundaries in DEVELOPMENT.md
 - If instructions here conflict with DEVELOPMENT.md, prefer DEVELOPMENT.md
@@ -18,6 +21,7 @@
 See [DEVELOPMENT.md](../DEVELOPMENT.md#layering--responsibilities) for full architectural details.
 
 **Quick summary:**
+
 - **REST endpoints**: HTTP adapters only—map request/response, basic validation only
 - **Services**: Cross-functional concerns (auth, transactions, orchestration)—no business logic
 - **Use Cases**: All business logic, domain rules, filtering, calculations—no HTTP or framework concerns
@@ -32,6 +36,7 @@ See [DEVELOPMENT.md](../DEVELOPMENT.md#layering--responsibilities) for full arch
 For work in `angular/`, use Gradle-managed Node tasks **only**. Do not run global `npm` or `ng` commands.
 
 Commands:
+
 - `./gradlew :angular:npmInstall` — Install dependencies
 - `./gradlew :angular:npm -PnpmArgs="<args>"` — Run any npm command
 - `./gradlew :angular:ng -PngArgs="<args>"` — Run Angular CLI
@@ -44,6 +49,8 @@ Commands:
 - Use **JUnit 5** + **AssertJ** for assertions
 - Integration tests: Use `@SpringBootTest` with `@ActiveProfiles("inttest")`
 - Prefer creating real test scenarios over mocking when testing domain logic
+- Run tests via IntelliJ's `idea-get_run_configurations` (to find the class/method run point) +
+  `idea-execute_run_configuration`, not `./gradlew test`/CLI test runners
 
 ### Code Generation Guidelines
 
@@ -70,3 +77,25 @@ Commands:
 - `./bootRun.sh` — Local development (auto-reloads)
 - `./gradlew build` — Full build (all modules + Angular)
 - Profiles: `dev` (local), `docker` (container), `inttest` (tests)
+
+## Tool Preferences
+
+### Mandatory IntelliJ MCP policy
+
+This is a hard requirement, not a preference:
+
+- Before using any CLI or bash command, check whether an IntelliJ `idea-*` MCP tool provides the same capability.
+- If an IntelliJ MCP equivalent exists, **you must use it**. Do not use the CLI as a faster, more familiar, or more
+  convenient alternative.
+- Do not use CLI commands for Git status, diffs, file search, symbol/text search, project inspection, problem
+  inspection, linting, refactoring, or test execution when an IntelliJ MCP equivalent exists. Examples include
+  `git status`, `git diff`, `find`, `grep`, `./gradlew test`, and ad-hoc linters.
+- For Git inspection, always use IntelliJ MCP Git tooling, including for status, staged/unstaged changes, and diffs.
+- For tests, always use `idea-get_run_configurations` followed by `idea-execute_run_configuration`; do not invoke test
+  runners from the command line.
+- For file location and code search, always use `idea-search_file`, `idea-search_symbol`, or `idea-search_text` as
+  appropriate.
+- If the preferred IntelliJ MCP tool is unavailable or fails, do not silently fall back to CLI. First report the
+  limitation; use CLI only when it is genuinely required and the exception is explicit.
+- CLI/bash remains appropriate only for operations with no IntelliJ MCP equivalent, such as shell-specific pipelines,
+  background processes, dependency installation, or non-IDE tooling.

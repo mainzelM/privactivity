@@ -13,13 +13,15 @@
 }
 @if (!loading && maxPower) {
   <div class="max-power-container">
-    <mat-card class="max-power-card">
+    <mat-card class="header-card">
       <mat-card-header>
         <mat-card-title>
-          <mat-icon>bolt</mat-icon>
+          <img class="header-icon" src="/assets/plug-circle-bolt-solid.svg" alt="" aria-hidden="true"/>
           Max Power Events
         </mat-card-title>
       </mat-card-header>
+    </mat-card>
+    <mat-card class="max-power-card">
       <mat-card-content>
         <mat-accordion class="max-power-accordion">
           @for (duration of (maxPower.maxPowers | keyvalue); track duration) {

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -100,16 +101,14 @@ public class AdminResource {
 
         try {
             logger.info("Importing all activitiies from {}", fitImportPath);
-            importActivitiesService.importDirectory(Path.of(fitImportPath), removeAllBeforeImport);
+            List<Long> importedIds = importActivitiesService.importDirectory(Path.of(fitImportPath),
+                                                                             removeAllBeforeImport);
             logger.info("Import finished");
-            int imported = 0;
-            int skipped = 0;
-            int errors = 0;
 
             result.message = "Import operation completed (placeholder implementation)";
-            result.imported = imported;
-            result.skipped = skipped;
-            result.errors = errors;
+            result.imported = importedIds.size();
+            result.skipped = 0;
+            result.errors = 0;
 
         } catch (Exception e) {
             logger.error("Error while importing activitiies from {}", fitImportPath, e);

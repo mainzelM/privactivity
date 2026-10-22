@@ -60,7 +60,7 @@ class ComputeEddingtonChartUseCaseTest {
                                                                                              ));
         ComputeEddingtonChartUseCase testee = new ComputeEddingtonChartUseCase(activityRepository);
 
-        ComputeEddingtonChartUseCase.EddigtionChart result = testee.act();
+        ComputeEddingtonChartUseCase.EddingtonChart result = testee.act();
 
         assertThat(result.countsPerKM()).containsExactly(4, 3, 2, 1, 1);
     }
@@ -81,6 +81,36 @@ class ComputeEddingtonChartUseCaseTest {
 
 
         assertThat(testee.act().eddigtionNumber()).isEqualTo(3);
+    }
+
+    @Test
+    void computesMissingActivitiesToNextEddingtonNumber() {
+        MapBasedActivityRepository activityRepository = new MapBasedActivityRepository(Map.of(
+                1L, activity(1L, 4000, 1),
+                2L, activity(2L, 4000, 2),
+                3L, activity(3L, 4000, 3),
+                4L, activity(4L, 1000, 4)
+                                                                                              ));
+        ComputeEddingtonChartUseCase testee = new ComputeEddingtonChartUseCase(activityRepository);
+
+        ComputeEddingtonChartUseCase.EddingtonChart result = testee.act();
+
+        assertThat(result.eddigtionNumber()).isEqualTo(3);
+        assertThat(result.missingToNext()).isEqualTo(1);
+    }
+
+    @Test
+    void reportsNoActivitiesMissingWhenEddingtonNumberIsAtMaximumDistance() {
+        MapBasedActivityRepository activityRepository = new MapBasedActivityRepository(Map.of(
+                1L, activity(1L, 2000, 1),
+                2L, activity(2L, 2000, 2)
+                                                                                              ));
+        ComputeEddingtonChartUseCase testee = new ComputeEddingtonChartUseCase(activityRepository);
+
+        ComputeEddingtonChartUseCase.EddingtonChart result = testee.act();
+
+        assertThat(result.eddigtionNumber()).isEqualTo(2);
+        assertThat(result.missingToNext()).isZero();
     }
 
 

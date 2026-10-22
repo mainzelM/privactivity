@@ -9,6 +9,7 @@ import net.privactivity.store.usecase.importactivities.adapter.TcxImporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.nio.file.Path;
+import java.util.List;
 
 @Service
 public class ImportActivitiesService {
@@ -18,21 +19,36 @@ public class ImportActivitiesService {
     private final GpxImporter gpxImporter;
     private final TcxImporter tcxImporter;
     private final ActivitiesJsonReader activitiesJsonReader;
+    private final TownFinderService townFinderService;
+    private final TilesService tilesService;
 
     @Autowired
     ImportActivitiesService(ActivityRepository activityRepository, FitDecoder fitDecoder, GpxImporter gpxImporter,
-                            TcxImporter tcxImporter, ActivitiesJsonReader activitiesJsonReader) {
+                            TcxImporter tcxImporter, ActivitiesJsonReader activitiesJsonReader,
+                            TownFinderService townFinderService, TilesService tilesService) {
         this.activityRepository = activityRepository;
         this.fitDecoder = fitDecoder;
         this.gpxImporter = gpxImporter;
         this.tcxImporter = tcxImporter;
         this.activitiesJsonReader = activitiesJsonReader;
+        this.townFinderService = townFinderService;
+        this.tilesService = tilesService;
     }
 
-    public void importDirectory(Path importDir, boolean removeAllBeforeImport) {
+    public List<Long> importDirectory(Path importDir, boolean removeAllBeforeImport) {
+        List<Long> importedIds = importActivities(importDir, removeAllBeforeImport);
+        if (!importedIds.isEmpty()) {
+            townFinderService.addMissingTowns();
+            tilesService.rebuildSnapshot();
+        }
+
+        return importedIds;
+    }
+
+    private List<Long> importActivities(Path importDir, boolean removeAllBeforeImport) {
         ImportActivitiesUseCase useCase = new ImportActivitiesUseCase(activityRepository, fitDecoder,
                                                                       gpxImporter, tcxImporter,
                                                                       activitiesJsonReader);
-        useCase.importDirectory(importDir, removeAllBeforeImport);
+        return useCase.importDirectory(importDir, removeAllBeforeImport);
     }
 }

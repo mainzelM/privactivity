@@ -1,25 +1,4 @@
-.aggregations-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  gap: 20px;
-  display: flex;
-  flex-direction: column;
-}
 
-.header-card {
-  background: linear-gradient(135deg, var(--mat-sys-primary) 0%, var(--mat-sys-secondary) 100%);
-  color: var(--mat-sys-on-primary);
-  margin-bottom: 20px;
-}
-
-.header-card .mat-card-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 24px;
-  font-weight: 500;
-}
 
 .header-card .mat-icon {
   color: var(--mat-sys-on-primary);
@@ -205,10 +184,6 @@
 }
 
 @media (max-width: 768px) {
-  .aggregations-container {
-    padding: 10px;
-  }
-
   .stats-grid {
     grid-template-columns: 1fr;
   }

@@ -64,6 +64,9 @@ export class ActivitiesService {
             if (filter.title !== undefined && filter.title !== null && filter.title.trim() !== '') {
                 params = params.set('title', filter.title);
             }
+            if (filter.dayOfWeek !== undefined && filter.dayOfWeek !== null) {
+                params = params.set('dayOfWeek', filter.dayOfWeek);
+            }
             if (filter.sortBy !== undefined && filter.sortBy !== null) {
                 params = params.set('sortBy', filter.sortBy);
             }

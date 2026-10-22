@@ -2,19 +2,20 @@ package net.privactivity.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.DayOfWeek;
+import java.time.ZonedDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ActivityTest {
 
     @Test
-    void test() {
-        //var wps = List.of(new Waypoint(7, 1, 2, 45, 500, 170, 100, 800, 188));
-        //Activity a = new Activity(0, "title", ZonedDateTime.now(), wps, new Totals(none(), none(), none(), 10, none
-        // ()), );
+    void returnsDayOfWeekFromStart() {
+        Activity testee = Activity.builder()
+                .title("title")
+                .start(ZonedDateTime.parse("2026-09-24T06:58:51+02:00[Europe/Berlin]"))
+                .build();
 
-        /*Maybe<Integer> integerMaybe = a.maxPower();
-        int x = switch (integerMaybe) {
-            case None n -> 0;
-            case Some some -> 1;
-       };*/
+        assertThat(testee.getDayOfWeek()).isEqualTo(DayOfWeek.THURSDAY);
     }
 }

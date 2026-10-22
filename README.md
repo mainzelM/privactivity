@@ -39,15 +39,33 @@ unified Angular frontend.
    ```
 
 3. **Configure storage:**
-   Create `application-dev.properties` in `privactivity-app/src/main/resources/` with:
-   ```properties
-   privactivity.store.activity.storage-directory=${HOME}/privactivity-storage/activity
-   privactivity.fit.import.directory=${HOME}/privactivity-import
-   privactivity.bootstrap.admin-password-file.path=${HOME}/privactivity-secrets/admin-password.txt
-   server.port=8090
-   ```
-   On first startup, the application reads the initial admin password from the file above and uses it to create the
+   The default directory for temporary application data is `${HOME}/tmp/privactivity`.
+   Either create that directory or change it in `privactivity-app/src/main/resources/application-dev.properties`.
+
+   The application reads/writes long-term data and imported data by default in `${PRIVATE_DATA_DIR}`.
+   Set this variable or change it in the file above.
+
+   On first startup, the application reads the initial admin password `${HOME}/tmp/privactivity/admin-password.txt` and
+   uses it to create the
    default `admin` account in `users.json` if that file does not already exist.
+
+### Download Shapefiles
+
+Optionally download Shapefiles for the countries of your activities.
+
+* For Switzerland go to https://portal.topax.ch/wizard/claim/file (for example
+  https://data.geo.admin.ch/ch.swisstopo.swissboundaries3d/swissboundaries3d_2026-01/swissboundaries3d_2026-01_2056_5728.shp.zip)
+  and download the latest ".shp.zip" file. Unzip it and copy all
+  "HOHEITSGEBIET" files to "privactivty-app/data/shapefiles/switzerland".
+* For Germany go to https://gdz.bkg.bund.de and get the latest "Verwaltungsgebiete 1:250 000" (VG250) in UTM32s shape
+  format. E.g. from
+  e.g. https://gdz.bkg.bund.de/index.php/default/verwaltungsgebiete-1-250-000-stand-01-01-vg250-01-01.html download
+  and https://daten.gdz.bkg.bund.de/produkte/vg/vg250_ebenen_0101/aktuell/vg250_01-01.utm32s.shape.ebenen.zip. Unzip it
+  and copy the vg250_ebenen_0101 folder to "privactivty-app/data/shapefiles/germany/„
+
+If the shapefiles are not present, there will be a warning and a stacktrace in the startup log but
+most of the features will still work.
+
 4. **Run locally:**
    ```bash
    ./bootRun.sh
@@ -105,8 +123,7 @@ unified Angular frontend.
 ```bash
 ./bootRun.sh                    # Development server with hot-reload
 ./gradlew build                 # Full build (all modules + Angular frontend)
-./gradlew :angular:ngServe      # Start Angular dev server only
-./build-docker-image.sh         # Build and push Docker image
+./gradlew ngServe               # Start Angular dev server only
 ```
 
 ### Technology Stack

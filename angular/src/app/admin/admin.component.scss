@@ -10,23 +10,7 @@
   --border-color: rgba(0, 0, 0, 0.1);
 }
 
-.admin-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
 
-.header-card {
-  margin-bottom: 20px;
-
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 24px;
-    font-weight: 500;
-  }
-}
 
 .loading-container {
   display: flex;

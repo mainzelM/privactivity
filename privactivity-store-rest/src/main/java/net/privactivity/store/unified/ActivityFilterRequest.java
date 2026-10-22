@@ -2,6 +2,8 @@ package net.privactivity.store.unified;
 
 import net.privactivity.store.usecase.findActivities.SortDirection;
 
+import java.time.DayOfWeek;
+
 public record ActivityFilterRequest(
         Boolean includeWaypoints,
         Integer minDistance,
@@ -10,9 +12,9 @@ public record ActivityFilterRequest(
         Integer maxAscent,
         Double lat,
         Double lon,
-        Integer radius,
         String title,
         String sortBy,
         SortDirection sortDirection,
-        String tileId) {
+        String tileId,
+        DayOfWeek dayOfWeek) {
 }

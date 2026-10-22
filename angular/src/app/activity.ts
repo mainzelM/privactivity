@@ -2,6 +2,7 @@ export interface Activity {
     id: number;
     title: string;
     start: string; // ISO 8601 date string
+    dayOfWeek: string;
     waypoints: Waypoint[];
     totals: Totals;
     averages: Averages;
