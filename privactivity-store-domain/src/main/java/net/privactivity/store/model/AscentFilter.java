@@ -1,9 +1,8 @@
-package net.privactivity.store.usecase.findActivities;
+package net.privactivity.store.model;
 
 import net.privactivity.domain.Activity;
 import net.privactivity.domain.None;
 import net.privactivity.domain.Some;
-import net.privactivity.store.model.Filter;
 
 public record AscentFilter(int min, int max) implements Filter {
 

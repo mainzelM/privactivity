@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class TrainingData {
-    private long id;
     private String title;
     private String description;
     private Date date;
@@ -31,10 +30,6 @@ public class TrainingData {
 
     public TrainingData() {
         this.records = new ArrayList<>();
-    }
-
-    public long getId() {
-        return this.id;
     }
 
     public String getTitle() {
@@ -91,10 +86,6 @@ public class TrainingData {
 
     public List<Segment> getSegmentInfos() {
         return this.segmentInfos;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public void setTitle(String title) {
@@ -171,9 +162,6 @@ public class TrainingData {
         if (!other.canEqual(this)) {
             return false;
         }
-        if (this.getId() != other.getId()) {
-            return false;
-        }
         final Object this$title = this.getTitle();
         final Object other$title = other.getTitle();
         if (!Objects.equals(this$title, other$title)) {
@@ -247,8 +235,6 @@ public class TrainingData {
     public int hashCode() {
         final int PRIME = 59;
         int result = 1;
-        final long $id = this.getId();
-        result = result * PRIME + (int) ($id >>> 32 ^ $id);
         final Object $title = this.getTitle();
         result = result * PRIME + ($title == null ? 43 : $title.hashCode());
         final Object $description = this.getDescription();
@@ -279,6 +265,6 @@ public class TrainingData {
     }
 
     public String toString() {
-        return "TrainingData(id=" + this.getId() + ", title=" + this.getTitle() + ", description=" + this.getDescription() + ", date=" + this.getDate() + ", addedDate=" + this.getAddedDate() + ", records=" + this.records + ", archive=" + java.util.Arrays.toString(this.getArchive()) + ", garminSession=" + this.getGarminSession() + ", geoPolygon=" + this.getGeoPolygon() + ", hrZones=" + this.getHrZones() + ", polyUrl=" + this.getPolyUrl() + ", polyData=" + java.util.Arrays.toString(this.getPolyData()) + ", user=" + this.getUser() + ", segmentInfoList=" + this.getSegmentInfoList() + ", segmentInfos=" + this.getSegmentInfos() + ")";
+        return "TrainingData(title=" + this.getTitle() + ", description=" + this.getDescription() + ", date=" + this.getDate() + ", addedDate=" + this.getAddedDate() + ", records=" + this.records + ", archive=" + java.util.Arrays.toString(this.getArchive()) + ", garminSession=" + this.getGarminSession() + ", geoPolygon=" + this.getGeoPolygon() + ", hrZones=" + this.getHrZones() + ", polyUrl=" + this.getPolyUrl() + ", polyData=" + java.util.Arrays.toString(this.getPolyData()) + ", user=" + this.getUser() + ", segmentInfoList=" + this.getSegmentInfoList() + ", segmentInfos=" + this.getSegmentInfos() + ")";
     }
 }

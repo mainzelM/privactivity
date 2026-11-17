@@ -18,8 +18,7 @@ class GpxImporterTest {
         GpxImporter importer = new GpxImporterImpl();
         InputStream gpxStream = getClass().getResourceAsStream("import.gpx");
         assertThat(gpxStream).isNotNull();
-        Activity activity = importer.importGpxAsActivity(gpxStream, 23L);
-        assertThat(activity.id()).isEqualTo(23L);
+        Activity activity = importer.importGpxAsActivity(gpxStream);
         assertThat(activity.title()).isEqualTo("Track 044");
         assertThat(activity.totals().movingTime().orThrow().getSeconds()).isEqualTo(2220L);
         assertThat(activity.start().getYear()).isEqualTo(2000);

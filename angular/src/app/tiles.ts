@@ -1,5 +1,13 @@
 export type TileMetric = 'activityCount' | 'maxPower' | 'maxHeartRate' | 'averagePower' | 'averageHeartRate';
 
+export const TILE_METRICS: ReadonlyArray<{ value: TileMetric; label: string }> = [
+    {value: 'activityCount', label: 'Activities'},
+    {value: 'maxPower', label: 'Max Power'},
+    {value: 'maxHeartRate', label: 'Max Heart Rate'},
+    {value: 'averagePower', label: 'Average Power'},
+    {value: 'averageHeartRate', label: 'Average Heart Rate'}
+];
+
 export interface TileBounds {
     south: number;
     north: number;
@@ -20,14 +28,16 @@ export interface TileSummary {
 }
 
 export interface TileLegend {
-    metric: TileMetric;
+    // The Java enum constant, e.g. 'ACTIVITY_COUNT'. It is not a TileMetric, so remember the requested metric instead.
+    metric: string;
     min: number | null;
     max: number | null;
     quantiles: number[];
 }
 
 export interface TilesResponse {
-    metric: TileMetric;
+    // See TileLegend.metric.
+    metric: string;
     legend: TileLegend;
     tileWidthDegrees: number;
     tileHeightDegrees: number;

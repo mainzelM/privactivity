@@ -82,20 +82,6 @@ Commands:
 
 ### Mandatory IntelliJ MCP policy
 
-This is a hard requirement, not a preference:
-
-- Before using any CLI or bash command, check whether an IntelliJ `idea-*` MCP tool provides the same capability.
-- If an IntelliJ MCP equivalent exists, **you must use it**. Do not use the CLI as a faster, more familiar, or more
-  convenient alternative.
-- Do not use CLI commands for Git status, diffs, file search, symbol/text search, project inspection, problem
-  inspection, linting, refactoring, or test execution when an IntelliJ MCP equivalent exists. Examples include
-  `git status`, `git diff`, `find`, `grep`, `./gradlew test`, and ad-hoc linters.
-- For Git inspection, always use IntelliJ MCP Git tooling, including for status, staged/unstaged changes, and diffs.
-- For tests, always use `idea-get_run_configurations` followed by `idea-execute_run_configuration`; do not invoke test
-  runners from the command line.
-- For file location and code search, always use `idea-search_file`, `idea-search_symbol`, or `idea-search_text` as
-  appropriate.
-- If the preferred IntelliJ MCP tool is unavailable or fails, do not silently fall back to CLI. First report the
-  limitation; use CLI only when it is genuinely required and the exception is explicit.
-- CLI/bash remains appropriate only for operations with no IntelliJ MCP equivalent, such as shell-specific pipelines,
-  background processes, dependency installation, or non-IDE tooling.
+- Run idea-lint_files to run IntelliJ inspections after making changes and fix the resulting warnings and errors
+- Use idea-analyze_calls to trace actual callers or callees when investigating callable dependencies; use
+  idea-search_symbol first if needed. Supplement with text search for references the call hierarchy cannot capture.

@@ -19,7 +19,6 @@ class FitToPrivactivityTest {
     void testConvertActivityFixture() {
         Date start = new Date(1_700_000_000_000L);
         TrainingData trainingData = new TrainingData();
-        trainingData.setId(23L);
         trainingData.setTitle("Test activity");
         trainingData.setDate(start);
         trainingData.addRecord(recordAt(start, (short) 0, 0.0, 127.0));
@@ -34,7 +33,6 @@ class FitToPrivactivityTest {
         Waypoint firstWaypoint = activity.waypoints().getFirst();
         Waypoint lastWaypoint = activity.waypoints().getLast();
 
-        assertThat(activity.id()).isEqualTo(23L);
         assertThat(activity.start().toInstant()).isEqualTo(trainingData.getDate().toInstant());
         assertThat(activity.waypoints()).hasSize(2);
 
@@ -76,7 +74,6 @@ class FitToPrivactivityTest {
     void testConvertFallsBackToTotalTimerTimeWhenMovingTimeMissing() {
         Date start = new Date(1_700_000_000_000L);
         TrainingData trainingData = new TrainingData();
-        trainingData.setId(42L);
         trainingData.setDate(start);
         trainingData.addRecord(recordAt(start, (short) 0, 0.0, 127.0));
         GarminSession garminSession = new GarminSession();

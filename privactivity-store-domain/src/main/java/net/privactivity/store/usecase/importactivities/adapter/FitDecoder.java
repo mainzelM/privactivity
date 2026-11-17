@@ -5,5 +5,5 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public interface FitDecoder {
-    Activity extractFit(InputStream is, long id) throws IOException;
+    Activity extractFit(InputStream is) throws IOException;
 }

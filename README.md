@@ -111,6 +111,13 @@ most of the features will still work.
    ```
    The application is then available at `http://localhost:8090`.
 
+6. **Import activities**
+
+Put your activities into the configured activities import directory.
+
+Besides `.zip` exports, the import directory may contain plain `.fit` and `.gpx` files. Their names must follow
+`yyyy-MM-dd-HH-mm-ss` (e.g. `2026-04-04-04-04-44.gpx`): the timestamp (system time zone) becomes the activity ID.
+
 ## Documentation
 
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** — Architecture, layering, workflow, and testing conventions

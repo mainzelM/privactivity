@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, NgZone, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Activity} from "../activity";
@@ -15,9 +15,11 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatSortModule} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
 import {FormsModule} from '@angular/forms';
 import {SelectionModel} from '@angular/cdk/collections';
-import {forkJoin, map, switchMap, tap} from 'rxjs';
+import {catchError, forkJoin, map, of, Subject, Subscription, switchMap, tap} from 'rxjs';
 import {LeafletModule} from '@bluehalo/ngx-leaflet';
 import {
     control,
@@ -28,11 +30,21 @@ import {
     LatLng,
     LatLngBounds,
     Layer,
+    layerGroup,
     LeafletMouseEvent,
     Map,
     marker,
+    PathOptions,
+    Rectangle,
     tileLayer
 } from 'leaflet';
+import {TILE_METRICS, TileMetric, TilesResponse, TileSummary} from '../tiles';
+import {TilesService} from '../tiles.service';
+import {createTileRectangle, tileOverlayStyle} from '../tiles/tile-overlay';
+
+// Between Leaflet's base map tiles (200) and its default overlay pane (400), so tracks and the marker stay on top.
+const TILE_OVERLAY_PANE = 'tileOverlay';
+const TILE_OVERLAY_Z_INDEX = '350';
 
 export function createTrackOverlayLabel(color: string, id: number, title: string): string {
     return `<span style="border-left: 4px solid ${color}; padding-left: 6px;"><a href="/activity-details/${id}" class="track-link">${escapeHtml(title)}</a></span>`;
@@ -66,6 +78,8 @@ function escapeHtml(value: string): string {
         MatSortModule,
         MatProgressSpinnerModule,
         MatCheckboxModule,
+        MatSlideToggleModule,
+        MatTooltipModule,
         FormsModule
     ],
     templateUrl: './activities.component.html',
@@ -74,6 +88,7 @@ function escapeHtml(value: string): string {
 export class ActivitiesComponent implements OnInit {
     activities: Activity[] = [];
     loading = false;
+    selectedActivity: Activity | null = null;
     // Columns with a dedicated template definition
     private readonly defaultColumns = [
         {value: 'title', label: 'Title'},
@@ -113,8 +128,12 @@ export class ActivitiesComponent implements OnInit {
 
     selection = new SelectionModel<Activity>(true, []);
     private trackLayers: Layer[] = [];
+    private previewLayer: Layer | null = null;
+    private previewSubscription?: Subscription;
     private layersControl?: Control.Layers;
     private destroyRef = inject(DestroyRef);
+    private zone = inject(NgZone);
+    private tilesService = inject(TilesService);
     activityService: ActivitiesService = inject(ActivitiesService);
     router: Router = inject(Router);
     route: ActivatedRoute = inject(ActivatedRoute);
@@ -161,8 +180,33 @@ export class ActivitiesComponent implements OnInit {
     private leafletMap?: Map;
     private pendingCenter?: LatLng;
 
+    // Tile overlay. It lives in its own layer group instead of `layers`, which is replaced on location changes.
+    readonly tileMetrics = TILE_METRICS;
+    showTiles = false;
+    tileMetric: TileMetric = 'activityCount';
+    tilesResponse?: TilesResponse;
+    tilesLoading = false;
+    tilesError?: string;
+    private readonly tileGroup = layerGroup();
+    private readonly tileRequests = new Subject<TileMetric>();
+    private tileOverlays: { tile: TileSummary, rectangle: Rectangle }[] = [];
+    // The metric `tilesResponse` was requested for. `tileMetric` already changes while the next response is loading.
+    private loadedTileMetric: TileMetric = this.tileMetric;
+    private selectedTileId: string | null = null;
+    private currentZoom = this.options.zoom;
+
     onMapReady(map: Map): void {
         this.leafletMap = map;
+        map.createPane(TILE_OVERLAY_PANE).style.zIndex = TILE_OVERLAY_Z_INDEX;
+        this.currentZoom = map.getZoom();
+        map.on('zoomend', () => {
+            this.currentZoom = map.getZoom();
+            this.restyleTiles();
+        });
+        this.restyleTiles();
+        if (this.showTiles) {
+            this.tileGroup.addTo(map);
+        }
         if (this.pendingCenter) {
             map.panTo(this.pendingCenter);
             this.pendingCenter = undefined;
@@ -244,6 +288,7 @@ export class ActivitiesComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.initTileLoading();
         this.route.queryParams.pipe(
             map(params => {
                 this.minDistanceKm = params['minDistance'] ? +params['minDistance'] : null;
@@ -251,6 +296,7 @@ export class ActivitiesComponent implements OnInit {
                 this.minAscent = params['minAscent'] ? +params['minAscent'] : null;
                 this.maxAscent = params['maxAscent'] ? +params['maxAscent'] : null;
                 this.tileIdFilter = params['tileId'] || null;
+                this.selectTile(this.tileIdFilter);
                 this.titleFilter = params['title'] || null;
                 this.dayOfWeekFilter = params['dayOfWeek'] || null;
                 this.lat = params['lat'] ? +params['lat'] : null;
@@ -313,6 +359,7 @@ export class ActivitiesComponent implements OnInit {
         ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(activities => {
             this.activities = activities;
             this.selection.clear();
+            this.closeSummary();
         });
     }
 
@@ -333,6 +380,104 @@ export class ActivitiesComponent implements OnInit {
                 })
             })
         ];
+    }
+
+    onShowTilesChange(show: boolean): void {
+        this.showTiles = show;
+        if (!show) {
+            this.tileGroup.remove();
+            return;
+        }
+        if (this.leafletMap) {
+            this.tileGroup.addTo(this.leafletMap);
+        }
+        if (!this.tilesResponse) {
+            this.tileRequests.next(this.tileMetric);
+        }
+    }
+
+    onTileMetricChange(): void {
+        this.tileRequests.next(this.tileMetric);
+    }
+
+    onTileClicked(tile: TileSummary): void {
+        this.tileIdFilter = tile.tileId;
+        this.applyFilter();
+    }
+
+    private initTileLoading(): void {
+        this.tileRequests.pipe(
+            tap(() => {
+                this.tilesLoading = true;
+                this.tilesError = undefined;
+            }),
+            switchMap(metric => this.tilesService.getTiles(metric).pipe(
+                map(response => ({metric, response})),
+                catchError(() => {
+                    this.tilesError = 'Tiles could not be loaded.';
+                    return of(undefined);
+                })
+            )),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(loaded => {
+            this.tilesLoading = false;
+            this.tilesResponse = loaded?.response;
+            if (loaded) {
+                this.loadedTileMetric = loaded.metric;
+            }
+            this.rebuildTileOverlay();
+        });
+
+        if (this.showTiles) {
+            this.tileRequests.next(this.tileMetric);
+        }
+    }
+
+    // Highlights the tile of the applied filter, not the Tile ID that is still being typed.
+    private selectTile(tileId: string | null): void {
+        if (this.selectedTileId === tileId) {
+            return;
+        }
+        this.selectedTileId = tileId;
+        this.restyleTiles();
+    }
+
+    private rebuildTileOverlay(): void {
+        this.tileGroup.clearLayers();
+        this.tileOverlays = [];
+
+        const response = this.tilesResponse;
+        if (!response) {
+            return;
+        }
+
+        for (const tile of response.tiles) {
+            const rectangle = createTileRectangle(tile, this.loadedTileMetric, {
+                ...this.tileStyle(tile, response),
+                pane: TILE_OVERLAY_PANE,
+                // A click selects the tile only; it must not bubble up to the map and set the location filter as well.
+                bubblingMouseEvents: false
+            });
+            // Leaflet events are fired outside of the Angular zone, but the navigation has to run inside of it.
+            rectangle.on('click', () => this.zone.run(() => this.onTileClicked(tile)));
+            this.tileGroup.addLayer(rectangle);
+            this.tileOverlays.push({tile, rectangle});
+        }
+    }
+
+    private restyleTiles(): void {
+        const response = this.tilesResponse;
+        if (!response) {
+            return;
+        }
+        for (const {tile, rectangle} of this.tileOverlays) {
+            rectangle.setStyle(this.tileStyle(tile, response));
+        }
+    }
+
+    private tileStyle(tile: TileSummary, response: TilesResponse): PathOptions {
+        return tileOverlayStyle(tile, response.legend, this.loadedTileMetric, this.currentZoom,
+            tile.tileId === this.selectedTileId);
     }
 
     applyFilter(): void {
@@ -401,6 +546,41 @@ export class ActivitiesComponent implements OnInit {
     }
 
     onRowClicked(activity: Activity): void {
+        this.selectedActivity = activity;
+        this.previewSubscription?.unsubscribe();
+        this.previewSubscription = this.activityService.getGeoJSON(activity.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(geojsonData => {
+                this.removePreviewLayer();
+                if (this.selectedActivity !== activity) return;
+                const layer = geoJSON(geojsonData, {
+                    style: () => ({color: '#ff7800', weight: 4}),
+                    coordsToLatLng: (coords: any) => new LatLng(coords[1], coords[0], coords[2])
+                });
+                this.previewLayer = layer;
+                this.layers = [...this.layers, layer];
+                const bounds = layer.getBounds();
+                if (bounds.isValid() && this.leafletMap) {
+                    this.leafletMap.fitBounds(bounds, {padding: [20, 20], maxZoom: this.leafletMap.getZoom()});
+                }
+            });
+    }
+
+    closeSummary(): void {
+        this.selectedActivity = null;
+        this.previewSubscription?.unsubscribe();
+        this.removePreviewLayer();
+    }
+
+    private removePreviewLayer(): void {
+        if (this.previewLayer) {
+            this.layers = this.layers.filter(l => l !== this.previewLayer);
+            this.previewLayer = null;
+        }
+    }
+
+    openDetails(activity: Activity, event?: Event): void {
+        event?.stopPropagation();
         this.router.navigate(['/activity-details', activity.id]);
     }
 

@@ -1,6 +1,6 @@
 package net.privactivity.store.unified;
 
-import net.privactivity.store.usecase.findActivities.SortDirection;
+import net.privactivity.store.model.SortDirection;
 
 import java.time.DayOfWeek;
 

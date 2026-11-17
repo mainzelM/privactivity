@@ -23,7 +23,7 @@ public class TownFinderTestFixture {
     public static Activity activityFromKomoot() {
         FitDecoder fitDecoder = new FitDecoderImpl();
         try (InputStream in = TownFinderTestFixture.class.getClassLoader().getResourceAsStream("komoot.fit")) {
-            return fitDecoder.extractFit(in, 1);
+            return fitDecoder.extractFit(in).withId(1);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

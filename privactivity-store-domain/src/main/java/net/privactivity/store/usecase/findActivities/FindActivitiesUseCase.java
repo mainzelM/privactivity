@@ -1,36 +1,22 @@
 package net.privactivity.store.usecase.findActivities;
 
 import net.privactivity.domain.Activity;
-import net.privactivity.domain.Maybe;
-import net.privactivity.store.adapter.ActivityRepository;
-import net.privactivity.store.adapter.MetaData;
-import net.privactivity.store.adapter.MetaDataRepository;
-import net.privactivity.store.model.Filter;
-import net.privactivity.store.usecase.townfinder.adapter.ActivityTownsRepository;
-import net.privactivity.store.usecase.townfinder.model.Town;
+import net.privactivity.store.model.*;
+
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class FindActivitiesUseCase {
-    private final ActivityRepository activityRepository;
-    private final MetaDataRepository metaDataRepository;
-    private final ActivityTownsRepository activityTownsRepository;
 
-    public FindActivitiesUseCase(ActivityRepository activityRepository,
-                                 MetaDataRepository metaDataRepository,
-                                 ActivityTownsRepository activityTownsRepository) {
-        this.activityRepository = activityRepository;
-        this.metaDataRepository = metaDataRepository;
-        this.activityTownsRepository = activityTownsRepository;
+    private final ReadActivitiesDomainService readActivitiesDomainService;
+
+    public FindActivitiesUseCase(ReadActivitiesDomainService readActivitiesDomainService) {
+        this.readActivitiesDomainService = readActivitiesDomainService;
     }
 
-    private Stream<Activity> fetchActivities(boolean attachWaypoints) {
-        List<Activity> activities = activityRepository.getAll(attachWaypoints);
-        return activities.stream()
-                         .map(this::addMetaData);
-    }
+
 
     public List<Activity> findFilteredAndSortedActivities(boolean attachWaypoints, Filter filter, String sortBy,
                                                           SortDirection sortDirection) {
@@ -40,7 +26,7 @@ public class FindActivitiesUseCase {
     }
 
     private Stream<Activity> applyFilter(boolean attachWaypoints, Filter filter) {
-        Stream<Activity> all = fetchActivities(attachWaypoints);
+        Stream<Activity> all = readActivitiesDomainService.fetchActivities(attachWaypoints);
         LocationFilter locFilter = extractLocationFilter(filter);
         if (locFilter == null) {
             return all.filter(filter::apply);
@@ -49,7 +35,7 @@ public class FindActivitiesUseCase {
             Filter otherFilters = removeLocationFilter(filter);
             return all.filter(otherFilters::apply)
                       .filter(locFilter::preCheck)
-                      .map(a -> getActivityById(a.id(), true))
+                      .map(a -> readActivitiesDomainService.getActivityById(a.id(), true))
                       .filter(locFilter::apply);
         }
     }
@@ -106,46 +92,7 @@ public class FindActivitiesUseCase {
         }
     }
 
-    private Activity addMetaData(Activity activity) {
-        Maybe<MetaData> metaData = metaDataRepository.getMetaDataForActivity(activity.id());
-        if (metaData.isPresent()) {
-            MetaData md = metaData.orThrow();
-            if (md.manualTitle().isPresent()) {
-                return activity.withTitle(md.manualTitle().orThrow());
-            } else {
-                return automaticTitle(activity);
-            }
-        } else {
-            return automaticTitle(activity);
-        }
-    }
-
-    private Activity automaticTitle(Activity activity) {
-        if (activity.title().contains("Rennradfahren") || activity.title().isEmpty()) {
-            List<String> towns = townsForTitle(activity);
-            if (towns.isEmpty()) {
-                return activity;
-            } else {
-                return activity.withTitle(String.join(", ", towns));
-            }
-        } else {
-            return activity;
-        }
-    }
-
-    private List<String> townsForTitle(Activity activity) {
-        Maybe<List<Town>> storedTowns = activityTownsRepository.townsOfActivity(activity);
-        if (storedTowns.isPresent()) {
-            return storedTowns.orThrow().stream()
-                              .map(Town::name)
-                              .toList();
-        } else {
-            return List.of();
-        }
-    }
-
-    public Activity getActivityById(long trackId, boolean includeWaypoints) {
-        Activity activity = activityRepository.getActivityById(trackId, includeWaypoints);
-        return addMetaData(activity);
+    public Activity getActivityById(long activityId, boolean includeWaypoints) {
+        return readActivitiesDomainService.getActivityById(activityId, includeWaypoints);
     }
 }

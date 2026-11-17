@@ -13,6 +13,46 @@
   }
 }
 
+.tile-status-error {
+  color: var(--mat-sys-error);
+}
+
+.map-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: flex-start;
+
+  .map-container {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.summary-panel {
+  flex: 0 0 320px;
+}
+
+.summary-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+
+  dt {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+  }
+}
+
+tr.selected-row {
+  background: var(--mat-sys-surface-variant);
+}
+
 .table-card {
   padding: 0;
 }

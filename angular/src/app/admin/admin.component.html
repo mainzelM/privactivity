@@ -42,167 +42,6 @@
 
   <mat-card class="admin-tabs-card">
     <mat-tab-group>
-      <!-- System Info Tab -->
-      <mat-tab label="System Information">
-        <div class="tab-content">
-          @if (systemInfo) {
-            <div>
-              <mat-card class="info-card">
-                <mat-card-header>
-                  <mat-card-title>Application Info</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="custom-list">
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">info</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Application Name</div>
-                        <div class="item-subtitle">{{ systemInfo.applicationName }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">tag</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Version</div>
-                        <div class="item-subtitle">{{ systemInfo.version }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">schedule</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Build Time</div>
-                        <div class="item-subtitle">{{ systemInfo.buildTime }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">code</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Java Version</div>
-                        <div class="item-subtitle">{{ systemInfo.javaVersion }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">build</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Gradle Version</div>
-                        <div class="item-subtitle">{{ systemInfo.gradleVersion }}</div>
-                      </div>
-                    </div>
-                    @if (systemInfo.gitCommit && systemInfo.gitCommit !== 'unknown') {
-                      <div class="custom-list-item"
-                        >
-                        <mat-icon class="item-icon">commit</mat-icon>
-                        <div class="item-content">
-                          <div class="item-title">Git Commit</div>
-                          <div class="item-subtitle">{{ systemInfo.gitCommit }}</div>
-                        </div>
-                      </div>
-                    }
-                    @if (systemInfo.buildNumber && systemInfo.buildNumber !== 'unknown') {
-                      <div class="custom-list-item"
-                        >
-                        <mat-icon class="item-icon">numbers</mat-icon>
-                        <div class="item-content">
-                          <div class="item-title">Build Number</div>
-                          <div class="item-subtitle">{{ systemInfo.buildNumber }}</div>
-                        </div>
-                      </div>
-                    }
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">settings</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Active Profiles</div>
-                        <div class="item-subtitle">{{ systemInfo.activeProfiles.join(', ') }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-              <mat-card class="info-card">
-                <mat-card-header>
-                  <mat-card-title>Storage Statistics</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="custom-list">
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">folder</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">FIT Activities</div>
-                        <div class="item-subtitle">{{ systemInfo.storageStats.fitActivities }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">folder</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">GPX Activities</div>
-                        <div class="item-subtitle">{{ systemInfo.storageStats.gpxActivities }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">storage</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Total Activities</div>
-                        <div class="item-subtitle">{{ systemInfo.storageStats.totalActivities }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">save</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Storage Size</div>
-                        <div class="item-subtitle">{{ systemInfo.storageStats.storageSize }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-              <mat-card class="info-card">
-                <mat-card-header>
-                  <mat-card-title>Memory Usage</mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="custom-list">
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">memory</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Used Memory</div>
-                        <div class="item-subtitle">{{ systemInfo.memoryUsage.used }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">memory</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Total Memory</div>
-                        <div class="item-subtitle">{{ systemInfo.memoryUsage.total }}</div>
-                      </div>
-                    </div>
-                    <div class="custom-list-item">
-                      <mat-icon class="item-icon">memory</mat-icon>
-                      <div class="item-content">
-                        <div class="item-title">Max Memory</div>
-                        <div class="item-subtitle">{{ systemInfo.memoryUsage.max }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          } @else {
-            <mat-card class="info-card">
-              <mat-card-content>
-                <p>No system information available. Click refresh to reload.</p>
-                <button mat-raised-button color="primary" (click)="loadSystemInfo()"
-                  [disabled]="isLoading">
-                  <mat-icon>refresh</mat-icon>
-                  Refresh
-                </button>
-              </mat-card-content>
-            </mat-card>
-          }
-
-        </div>
-      </mat-tab>
-
       <mat-tab label="Data Management">
         <div class="tab-content">
           <mat-card class="action-card">
@@ -260,7 +99,167 @@
         </div>
       </mat-tab>
 
-      <mat-tab label="Cache Management">
+        <mat-tab label="System Information">
+            <div class="tab-content">
+                @if (systemInfo) {
+                    <div>
+                        <mat-card class="info-card">
+                            <mat-card-header>
+                                <mat-card-title>Application Info</mat-card-title>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <div class="custom-list">
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">info</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Application Name</div>
+                                            <div class="item-subtitle">{{ systemInfo.applicationName }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">tag</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Version</div>
+                                            <div class="item-subtitle">{{ systemInfo.version }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">schedule</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Build Time</div>
+                                            <div class="item-subtitle">{{ systemInfo.buildTime }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">code</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Java Version</div>
+                                            <div class="item-subtitle">{{ systemInfo.javaVersion }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">build</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Gradle Version</div>
+                                            <div class="item-subtitle">{{ systemInfo.gradleVersion }}</div>
+                                        </div>
+                                    </div>
+                                    @if (systemInfo.gitCommit && systemInfo.gitCommit !== 'unknown') {
+                                        <div class="custom-list-item"
+                                        >
+                                            <mat-icon class="item-icon">commit</mat-icon>
+                                            <div class="item-content">
+                                                <div class="item-title">Git Commit</div>
+                                                <div class="item-subtitle">{{ systemInfo.gitCommit }}</div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (systemInfo.buildNumber && systemInfo.buildNumber !== 'unknown') {
+                                        <div class="custom-list-item"
+                                        >
+                                            <mat-icon class="item-icon">numbers</mat-icon>
+                                            <div class="item-content">
+                                                <div class="item-title">Build Number</div>
+                                                <div class="item-subtitle">{{ systemInfo.buildNumber }}</div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">settings</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Active Profiles</div>
+                                            <div class="item-subtitle">{{ systemInfo.activeProfiles.join(', ') }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                        <mat-card class="info-card">
+                            <mat-card-header>
+                                <mat-card-title>Storage Statistics</mat-card-title>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <div class="custom-list">
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">folder</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">FIT Activities</div>
+                                            <div class="item-subtitle">{{ systemInfo.storageStats.fitActivities }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">folder</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">GPX Activities</div>
+                                            <div class="item-subtitle">{{ systemInfo.storageStats.gpxActivities }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">storage</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Total Activities</div>
+                                            <div class="item-subtitle">{{ systemInfo.storageStats.totalActivities }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">save</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Storage Size</div>
+                                            <div class="item-subtitle">{{ systemInfo.storageStats.storageSize }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                        <mat-card class="info-card">
+                            <mat-card-header>
+                                <mat-card-title>Memory Usage</mat-card-title>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <div class="custom-list">
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">memory</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Used Memory</div>
+                                            <div class="item-subtitle">{{ systemInfo.memoryUsage.used }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">memory</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Total Memory</div>
+                                            <div class="item-subtitle">{{ systemInfo.memoryUsage.total }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="custom-list-item">
+                                        <mat-icon class="item-icon">memory</mat-icon>
+                                        <div class="item-content">
+                                            <div class="item-title">Max Memory</div>
+                                            <div class="item-subtitle">{{ systemInfo.memoryUsage.max }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                    </div>
+                } @else {
+                    <mat-card class="info-card">
+                        <mat-card-content>
+                            <p>No system information available. Click refresh to reload.</p>
+                            <button mat-raised-button color="primary" (click)="loadSystemInfo()"
+                                    [disabled]="isLoading">
+                                <mat-icon>refresh</mat-icon>
+                                Refresh
+                            </button>
+                        </mat-card-content>
+                    </mat-card>
+                }
+
+            </div>
+        </mat-tab>
+
+        <mat-tab label="Cache Management">
         <div class="tab-content">
           <mat-card class="action-card">
             <mat-card-header>

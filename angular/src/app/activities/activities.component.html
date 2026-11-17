@@ -55,9 +55,70 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="map-container" style="height: 300px; margin-top: 16px; border-radius: 4px; overflow: hidden;"
-                 leaflet [leafletOptions]="options" [leafletLayers]="layers" (leafletClick)="onMapClick($event)"
-                 (leafletMapReady)="onMapReady($event)" [leafletCenter]="mapCenter">
+            <div class="filter-row" style="margin-top: 16px;">
+                <mat-slide-toggle [checked]="showTiles" (change)="onShowTilesChange($event.checked)"
+                                  matTooltip="Click a tile to filter by it. Hide tiles to pick a location instead.">
+                    Tiles
+                </mat-slide-toggle>
+                <mat-form-field appearance="outline">
+                    <mat-label>Tile metric</mat-label>
+                    <mat-select [(ngModel)]="tileMetric" [disabled]="!showTiles"
+                                (selectionChange)="onTileMetricChange()">
+                        @for (metric of tileMetrics; track metric.value) {
+                            <mat-option [value]="metric.value">{{ metric.label }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                @if (showTiles && tilesLoading) {
+                    <mat-spinner diameter="24" aria-label="Loading tiles"></mat-spinner>
+                }
+                @if (showTiles && tilesError) {
+                    <span class="tile-status-error" role="alert">{{ tilesError }}</span>
+                } @else if (showTiles && !tilesLoading && tilesResponse?.tiles?.length === 0) {
+                    <span>No tiles available yet.</span>
+                }
+            </div>
+            <div class="map-row">
+                <div class="map-container" style="height: 300px; border-radius: 4px; overflow: hidden;"
+                     leaflet [leafletOptions]="options" [leafletLayers]="layers" (leafletClick)="onMapClick($event)"
+                     (leafletMapReady)="onMapReady($event)" [leafletCenter]="mapCenter">
+                </div>
+                @if (selectedActivity; as activity) {
+                    <mat-card class="summary-panel" appearance="outlined">
+                        <mat-card-header>
+                            <mat-card-title>{{ activity.title }}</mat-card-title>
+                            <mat-card-subtitle>{{ activity.start | date:'dd.MM.yyyy HH:mm' }}</mat-card-subtitle>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <dl class="summary-list">
+                                <dt>Distance</dt>
+                                <dd>{{ (activity.totals.distance / 1000) | number:'1.2-2' }} km</dd>
+                                <dt>Moving time</dt>
+                                <dd>{{ formatDuration(activity.totals.duration) }}</dd>
+                                <dt>Ascent / Descent</dt>
+                                <dd>{{ activity.totals.ascent | number:'1.0-0' }} m
+                                    / {{ activity.totals.descent | number:'1.0-0' }} m
+                                </dd>
+                                <dt>Avg speed</dt>
+                                <dd>{{ (activity.averages.speedInMetersPerHour / 1000) | number:'1.1-1' }} km/h</dd>
+                                <dt>Avg / Max heart rate</dt>
+                                <dd>{{ activity.averages.heartRate | number:'1.0-0' }}
+                                    / {{ activity.maxima.heartRate | number:'1.0-0' }} bpm
+                                </dd>
+                                <dt>Avg / Max power</dt>
+                                <dd>{{ activity.averages.power | number:'1.0-0' }}
+                                    / {{ activity.maxima.power | number:'1.0-0' }} W
+                                </dd>
+                                <dt>Max altitude</dt>
+                                <dd>{{ activity.maxima.altitude | number:'1.0-0' }} m</dd>
+                            </dl>
+                        </mat-card-content>
+                        <mat-card-actions>
+                            <button mat-button (click)="closeSummary()">Close</button>
+                            <button mat-button color="primary" (click)="openDetails(activity)">Details</button>
+                        </mat-card-actions>
+                    </mat-card>
+                }
             </div>
         </mat-card-content>
     </mat-card>
@@ -209,14 +270,16 @@
                 <!-- Details Icon Column -->
                 <ng-container matColumnDef="details">
                     <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details">
+                    <td mat-cell *matCellDef="let activity" tabindex="0" title="Show details"
+                        (click)="openDetails(activity, $event)" (keydown.enter)="openDetails(activity, $event)">
                         <mat-icon class="details-arrow">chevron_right</mat-icon>
                     </td>
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onRowClicked(row)"
-                    (keydown.enter)="onRowClicked(row)" class="clickable-row"></tr>
+                    (keydown.enter)="onRowClicked(row)" class="clickable-row"
+                    [class.selected-row]="row === selectedActivity"></tr>
             </table>
         </mat-card-content>
     </mat-card>

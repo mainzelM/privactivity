@@ -8,7 +8,7 @@ import net.privactivity.domain.Waypoint;
 import net.privactivity.store.adapter.ActivityRepository;
 import net.privactivity.store.adapter.MetaData;
 import net.privactivity.store.adapter.MetaDataRepository;
-import net.privactivity.store.model.Filter;
+import net.privactivity.store.model.*;
 import net.privactivity.store.usecase.gettiles.TileSummary;
 import net.privactivity.store.usecase.townfinder.adapter.ActivityTownsRepository;
 import net.privactivity.store.usecase.townfinder.model.Town;
@@ -47,7 +47,7 @@ class FindActivitiesUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        testee = new FindActivitiesUseCase(activityRepository, metaDataRepository, activityTownsRepository);
+        testee = new FindActivitiesUseCase(new ReadActivitiesDomainService(activityRepository, metaDataRepository, activityTownsRepository));
     }
 
     @Test

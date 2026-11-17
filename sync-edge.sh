@@ -9,7 +9,7 @@ if [ -z "$PRIVATE_DATA_DIR" ]; then
     exit 1
 fi
 DEST_DIR=$PRIVATE_DATA_DIR/activities-fit
-MIN_FILE_ID=311
+MIN_DATE=2026-09-08-17 # YYYY-MM-DD; activities before this date are skipped
 MAX_RETRIES=5
 
 mkdir -p "$DEST_DIR"
@@ -71,9 +71,10 @@ in_activities && /^  [0-9]+ / { exit }
 in_activities && /\.fit$/ { print $1, $2 }
 ' |
 while read -r FILE_ID FILE_NAME; do
-    # Skip old MTP file IDs
-    if (( FILE_ID < MIN_FILE_ID )); then
-        echo "Skipping old ID $FILE_ID: $FILE_NAME"
+    # Skip old activities; file names look like 2026-05-05-09-15-00.fit
+    FILE_DATE="${FILE_NAME:0:10}"
+    if [[ "$FILE_DATE" < "$MIN_DATE" ]]; then
+        echo "Skipping old activity ($FILE_DATE): $FILE_NAME"
         continue
     fi
 

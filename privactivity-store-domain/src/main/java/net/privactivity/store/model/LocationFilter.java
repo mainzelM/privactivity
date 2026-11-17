@@ -1,10 +1,9 @@
-package net.privactivity.store.usecase.findActivities;
+package net.privactivity.store.model;
 
 import net.privactivity.domain.Activity;
 import net.privactivity.domain.HaversineDistance;
 import net.privactivity.domain.Maybe;
 import net.privactivity.domain.Waypoint;
-import net.privactivity.store.model.Filter;
 
 public record LocationFilter(double lat, double lon, int radiusMeters) implements Filter {
     @Override

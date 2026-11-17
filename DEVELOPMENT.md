@@ -10,6 +10,7 @@
 - `microstream-repositories/` — repositories based on Eclipse MicroStream
 - `metadata-repository/` — repositories based on JSON files
 - `fit-decoder-adapter/` — Garmin FIT decoder adapter
+- `fit-generator/` — command line tool creating synthetic Garmin Edge 1040 FIT files for testing
 - `gpx-importer-adapter/` — GPX import adapter
 - `tcx-importer-adapter/` — TCX import adapter
 - `gpx-export-adapter/` — GPX export adapter
@@ -235,6 +236,24 @@ According to onion architecture
 # Docker image
 ./build-docker-image.sh               # Creates Docker image and pushes
 ```
+
+### Test FIT File Generator (`fit-generator`)
+
+Creates a synthetic Garmin Edge 1040 road-cycling activity between two towns. The route is a real cycling route
+(OSRM bike server of openstreetmap.de), towns are resolved with Nominatim and elevations come from Open-Meteo; no API
+keys are needed. All other values (speed, power, heart rate, cadence, temperature, session totals, TSS, TE, PCO, ...)
+are simulated. The ride has one lap, no pauses and no climb pointers. Maximum route length is 200 km.
+
+```bash
+./gradlew :fit-generator:run --args='--from "Utrecht" --to "Amersfoort, Utrecht, Nederland" --date 2026-05-01 --time 09:15'
+```
+
+- `--date` (default: today) and `--time` (default: 08:00) are local times in Europe/Berlin; FIT timestamps are UTC.
+- `--seed` (default: 1) makes rides reproducible, `--out-dir` defaults to the directory Gradle was started from.
+- Ambiguous town names fail and list the exact names to use for the next run.
+- The file is named `uuuu-MM-dd-HH-mm-ss.fit` like `ImportActivitiesUseCase` expects. The importer interprets the name
+  in the JVM default time zone, so the activity id/start only matches the file name if that zone is Europe/Berlin.
+- Service responses are cached in `~/.privactivity-fit-generator/cache`, so repeated runs work offline.
 
 ## REST API Structure
 

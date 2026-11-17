@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -41,7 +42,7 @@ public class ImportActivitiesUseCase {
     private static final Logger logger = LoggerFactory.getLogger(ImportActivitiesUseCase.class);
     private final String ID_REGEXP = "(\\d+)_\\w+\\.\\w+";
     private final Pattern ID_PATTERN = Pattern.compile(ID_REGEXP);
-    private static final DateTimeFormatter FIT_FILENAME_TIMESTAMP_FORMAT =
+    private static final DateTimeFormatter PLAIN_FILENAME_TIMESTAMP_FORMAT =
             DateTimeFormatter.ofPattern("uuuu-MM-dd-HH-mm-ss");
 
 
@@ -62,7 +63,8 @@ public class ImportActivitiesUseCase {
             }
             List<Long> importedIds = new ArrayList<>();
             importedIds.addAll(importZipFiles(dir));
-            importedIds.addAll(importPlainFitFiles(dir));
+            importedIds.addAll(importPlainFiles(dir, ".fit", fitDecoder::extractFit));
+            importedIds.addAll(importPlainFiles(dir, ".gpx", gpxImporter::importGpxAsActivity));
             activityRepository.gc();
             return importedIds;
         } catch (IOException e) {
@@ -70,12 +72,61 @@ public class ImportActivitiesUseCase {
         }
     }
 
-    private List<Long> importPlainFitFiles(Path dir) throws IOException {
-        try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(".fit"))) {
-            return stream.map(this::importFitFile)
+    private List<Long> importPlainFiles(Path dir, String extension, PlainFileDecoder decoder) throws IOException {
+        try (Stream<Path> stream = Files.find(dir, 1, (p, _) -> p.toString().endsWith(extension))) {
+            return stream.map(path -> importPlainFile(path, extension, decoder))
                          .filter(Optional::isPresent)
                          .map(Optional::get)
                          .toList();
+        }
+    }
+
+    @FunctionalInterface
+    private interface PlainFileDecoder {
+        Activity decode(InputStream is) throws IOException;
+    }
+
+    private Optional<Long> importPlainFile(Path path, String extension, PlainFileDecoder decoder) {
+        try (FileInputStream fis = new FileInputStream(path.toFile())) {
+            Optional<Long> filenameId = parseFilenameAsId(path.getFileName().toString(), extension);
+            if (filenameId.filter(activityRepository::containsActivityId).isPresent()) {
+                return Optional.empty();
+            }
+
+            Activity activity = decoder.decode(fis);
+
+            long id = filenameId.orElseGet(() -> idFromFirstWaypoint(activity, path));
+            if (activityRepository.containsActivityId(id)) {
+                return Optional.empty();
+            }
+            activityRepository.addActivity(activity.withId(id));
+            return Optional.of(id);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private long idFromFirstWaypoint(Activity activity, Path path) {
+        if (activity.waypoints().isEmpty()) {
+            throw new IllegalArgumentException("Cannot derive activity ID from " + path + ": no waypoints found");
+        }
+        return activity.start()
+                       .plusSeconds(activity.waypoints().getFirst().secondsSinceStart())
+                       .toInstant()
+                       .toEpochMilli();
+    }
+
+    private Optional<Long> parseFilenameAsId(String fileName, String extension) {
+        String timestamp = fileName.endsWith(extension)
+                ? fileName.substring(0, fileName.length() - extension.length())
+                : fileName;
+        try {
+            return Optional.of(LocalDateTime.parse(timestamp, PLAIN_FILENAME_TIMESTAMP_FORMAT)
+                                          .atZone(ZoneId.systemDefault())
+                                          .toInstant()
+                                          .toEpochMilli());
+        } catch (DateTimeParseException e) {
+            return Optional.empty();
         }
     }
 
@@ -171,28 +222,6 @@ public class ImportActivitiesUseCase {
         }
     }
 
-    private Optional<Long> importFitFile(Path path) {
-        try (FileInputStream fis = new FileInputStream(path.toFile())) {
-            long id = parseFilenameAsId(path.getFileName().toString());
-            if (!activityRepository.containsActivityId(id)) {
-                Activity activity = fitDecoder.extractFit(fis, id);
-                activityRepository.addActivity(activity);
-                return Optional.of(id);
-            }
-            return Optional.empty();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private long parseFilenameAsId(String fitFile) {
-        String timestamp = fitFile.endsWith(".fit") ? fitFile.substring(0, fitFile.length() - 4) : fitFile;
-        return LocalDateTime.parse(timestamp, FIT_FILENAME_TIMESTAMP_FORMAT)
-                            .atZone(ZoneId.systemDefault())
-                            .toInstant()
-                            .toEpochMilli();
-    }
-
 
     public Optional<Activity> decodeZip(Path fileZip, Predicate<Long> skipId) throws IOException {
         try (ZipFile zf = new ZipFile(fileZip.toFile())) {
@@ -215,11 +244,17 @@ public class ImportActivitiesUseCase {
     private Activity asActivity(ZipFile zf, ZipEntry zipEntry, String name, long id) throws IOException {
         try (InputStream is = zf.getInputStream(zipEntry)) {
             if (name.endsWith(".fit")) {
-                return fitDecoder.extractFit(is, id);
+                return fitDecoder.extractFit(is).withId(id);
             } else if (name.endsWith(".gpx")) {
-                return gpxImporter.importGpxAsActivity(is, id);
+                return gpxImporter.importGpxAsActivity(is).withId(id);
             } else if (name.endsWith(".tcx")) {
-                return tcxImporter.importTcx(is, id);
+                Activity activity = tcxImporter.importTcx(is).withId(id);
+                String title = activity.title();
+                if (title.startsWith(TcxImporter.DEFAULT_TITLE_PREFIX)) {
+                    title = "TCX " + id + " from " + title.substring(TcxImporter.DEFAULT_TITLE_PREFIX.length());
+                    activity = activity.withTitle(title);
+                }
+                return activity;
             } else {
                 throw new RuntimeException("Found unknown entry " + zipEntry);
             }

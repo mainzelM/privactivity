@@ -37,7 +37,6 @@ public class FitToPrivactivity {
         GarminSession gs = td.getGarminSession();
         if (gs == null) {
             return Activity.builder()
-                           .id(td.getId())
                            .title(titleOrEmpty(td))
                            .start(start)
                            .waypoints(waypoints)
@@ -50,7 +49,6 @@ public class FitToPrivactivity {
             Activity.Summary summary = makeSummary(gs);
             Bounds bounds = Bounds.ofWaypoints(waypoints);
             return Activity.builder()
-                           .id(td.getId())
                            .title(titleOrEmpty(td))
                            .start(start)
                            .waypoints(waypoints)

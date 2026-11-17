@@ -28,22 +28,22 @@ public class TcxImporterImpl implements TcxImporter {
     private static final Logger logger = LoggerFactory.getLogger(TcxImporterImpl.class);
 
     @Override
-    public Activity importTcx(InputStream is, long activityId) {
+    public Activity importTcx(InputStream is) {
         var parser = new TcxXmlUtil();
         TrainingCenterDatabaseT tcx = parser.unmarshall(is);
-        String title = "TCX " + activityId + " from " + tcx.getAuthor().getName();
+        String title = DEFAULT_TITLE_PREFIX + tcx.getAuthor().getName();
         if (tcx.getActivities().getActivity().size() > 1) {
-            logger.warn("Found multiple activities, taking first {}", activityId);
+            logger.warn("Found multiple activities, taking first");
         }
         ActivityT activityT = tcx.getActivities().getActivity().getFirst();
-        return fromSingleTcxActivity(activityId, title, activityT);
+        return fromSingleTcxActivity(title, activityT);
     }
 
-    private Activity fromSingleTcxActivity(long activityId, String title, ActivityT activityT) {
+    private Activity fromSingleTcxActivity(String title, ActivityT activityT) {
         ZonedDateTime start = activityT.getId().atZone(ZoneId.systemDefault());
 
         if (activityT.getLap().isEmpty()) {
-            throw new RuntimeException("TCX without laps " + activityId);
+            throw new RuntimeException("TCX without laps, activity start " + start);
         }
 
         List<ActivityLapT> allLaps = activityT.getLap();
@@ -69,7 +69,6 @@ public class TcxImporterImpl implements TcxImporter {
                 Maybe.none()); // altitude
         Bounds bounds = Bounds.ofWaypoints(waypoints);
         return Activity.builder()
-                       .id(activityId)
                        .title(title)
                        .start(start)
                        .waypoints(waypoints)

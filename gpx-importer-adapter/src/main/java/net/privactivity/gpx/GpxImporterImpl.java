@@ -25,7 +25,7 @@ public class GpxImporterImpl implements GpxImporter {
     private static final Logger logger = LoggerFactory.getLogger(GpxImporterImpl.class);
 
     @Override
-    public Activity importGpxAsActivity(InputStream is, long id) {
+    public Activity importGpxAsActivity(InputStream is) {
         try {
             GPX read = GPX.Reader.of(GPX.Version.V11, GPX.Reader.Mode.LENIENT).read(is);
             List<Track> tracks = read.getTracks();
@@ -49,7 +49,6 @@ public class GpxImporterImpl implements GpxImporter {
             Duration duration = Duration.ofSeconds(lastWaypoint.secondsSinceStart());
 
             return Activity.builder()
-                           .id(id)
                            .title(title)
                            .start(start)
                            .waypoints(waypoints)

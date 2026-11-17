@@ -38,9 +38,8 @@ public class FitDecoderImpl implements FitDecoder {
 
 
     @Override
-    public Activity extractFit(InputStream is, long id) {
+    public Activity extractFit(InputStream is) {
         TrainingData trainingData = readTrainingData(is);
-        trainingData.setId(id);
         FitToPrivactivity fitToPrivactivity = new FitToPrivactivity();
         return fitToPrivactivity.convert(trainingData);
     }

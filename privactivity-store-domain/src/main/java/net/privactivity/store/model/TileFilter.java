@@ -1,7 +1,6 @@
-package net.privactivity.store.usecase.findActivities;
+package net.privactivity.store.model;
 
 import net.privactivity.domain.Activity;
-import net.privactivity.store.model.Filter;
 import net.privactivity.store.usecase.gettiles.TileSummary;
 
 public class TileFilter implements Filter {

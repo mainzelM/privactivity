@@ -44,6 +44,10 @@ public record Activity(long id,
         return new Activity(id, newTitle, start, waypoints, totals, averages, maxima, climbPointers, bounds, summary);
     }
 
+    public Activity withId(long newId) {
+        return new Activity(newId, title, start, waypoints, totals, averages, maxima, climbPointers, bounds, summary);
+    }
+
     public Activity withTotals(Totals newTotals) {
         Objects.requireNonNull(newTotals, "newTotals must not be null");
         return new Activity(id, title, start, waypoints, newTotals, averages, maxima, climbPointers, bounds, summary);
