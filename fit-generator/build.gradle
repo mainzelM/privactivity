@@ -1,0 +1,29 @@
+plugins {
+    id 'application'
+    id 'privactivity.java-conventions'
+}
+
+application {
+    mainClass = 'net.privactivity.fitgenerator.FitGeneratorMain'
+}
+
+// Generated files land in the directory Gradle was invoked from unless --out-dir is given
+tasks.named('run') {
+    systemProperty 'fitgenerator.invocationDir', gradle.startParameter.currentDir.absolutePath
+    // Trust the OS certificates (e.g. corporate TLS inspection) on macOS, like curl and browsers do
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        jvmArgs '-Djavax.net.ssl.trustStoreType=KeychainStore', '-Djavax.net.ssl.trustStore=NONE'
+    }
+}
+
+dependencies {
+    implementation("com.garmin:fit")
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    testImplementation project(':privactivity-domain')
+    testImplementation project(':privactivity-store-domain')
+    testImplementation project(':fit-decoder-adapter')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.assertj:assertj-core'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
